@@ -2,6 +2,7 @@
 #include <iostream>
 #include <string.h>
 #include "point.hpp"
+#include "cell.hpp"
 
 using namespace std;
 
@@ -10,19 +11,24 @@ class Maze {
 private:
     int size;
     string mazeName;
-    int** mazeBoard;
-    Point startPoint;
-    Point endPoint;
+    Cell** mazeBoard;
+    Cell* startPoint;
+    Cell* endPoint;
+    Cell* userPoint;
 
 public:
-    Maze();
+    Maze(){};
     Maze(int size, const string& name);
+    Maze(const Maze& toCopy);
     ~Maze();
-    void display() const;
+    void display() ;
     int getSize() const { return size; }
     string getMazeName() const { return mazeName; }
-    int** getBoard() const { return mazeBoard; }
-    Point getStartPoint() const { return startPoint; }
-    Point getEndPoint() const { return endPoint; }
+    Cell** getBoard() const { return mazeBoard; }
+    Cell* getStartPoint() const { return startPoint; }
+    Cell* getEndPoint() const { return endPoint; }
+    Cell* getCell(int i, int j)const{return &mazeBoard[i][j];}
+    Cell* getUserPoint()const{return userPoint;}
+    void setUserPoint(int x,int y){this->getUserPoint()->setX(x); this->getUserPoint()->setY(y);}
 };
 

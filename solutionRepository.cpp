@@ -3,33 +3,30 @@
 #include <iostream>
 using namespace std;
 
-SolutionRepository* SolutionRepository::_instance = nullptr;
+SolutionRepository* SolutionRepository::solution_instance = nullptr;
 
 SolutionRepository::SolutionRepository() {}
 
 SolutionRepository* SolutionRepository::getInstance() {
-    if (!_instance) {
-        _instance = new SolutionRepository();
+    if (!solution_instance) {
+        solution_instance = new SolutionRepository();
     }
-    return _instance;
+    return solution_instance;
 }
 
 SolutionRepository::~SolutionRepository() {
-    // Clean up the solutions map
     for (const auto& pair : solutions) {
-        delete pair.second; // Delete mazeSolution objects
+        delete pair.second; 
     }
     solutions.clear();
 }
 
 bool SolutionRepository::saveSolution(const string& mazeName, MazeSolution* toAdd) {
-    // Check if the maze solution already exists in the repository
     if (solutions.find(mazeName) != solutions.end()) {
         std::cout << "Solution for maze '" << mazeName << "' already exists." << std::endl;
         return false;
     }
 
-    // Add the solution to the repository
     solutions[mazeName] = toAdd;
     return true;
 }

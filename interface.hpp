@@ -14,7 +14,7 @@ protected:
 
 public:
     virtual ~Command();
-    virtual void execute(Command&) =0;
+    virtual void execute(myCommands&, Maze*) =0;
     myCommands getCommand(){return toDo;}
 };
 
@@ -24,26 +24,23 @@ class UserInterface
 {
 public:
     virtual ~UserInterface();
-    virtual void setCommand(Command& cmd)= 0;
-    virtual void invokeCommand(Command& cmd) =0;
-    virtual void update(Command& cmd) = 0;
+    virtual void setCommand(myCommands& cmd)= 0;
+    virtual void update(myCommands& cmd) = 0;
 };
 
-UserInterface::~UserInterface()
-{
-}
+
 
 
 class GraphicalInterface : public UserInterface, public Command
 {
 public:
     GraphicalInterface();
+    GraphicalInterface(myCommands& toInsert){toDo = toInsert;};
     ~GraphicalInterface();
-    virtual void displayMaze(Maze);
+    virtual void displayMaze(Maze*);
     virtual void displaySolution(MazeSolution);
-    virtual void update(Command& cmd);
-    virtual void execute(Command&);
-    virtual void invokeCommand(Command& cmd);
-    virtual void setCommand(Command& cmd);
+    virtual void update(myCommands& cmd);
+    virtual void execute(myCommands&, Maze*);
+    virtual void setCommand(myCommands& cmd);
 };
 

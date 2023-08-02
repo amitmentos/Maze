@@ -27,22 +27,27 @@ public:
 
 class GameSystem:public GraphicalInterface, public GameStatus{
 private:
-    static GameSystem* _instance;
+    static GameSystem* game_instance;
     Status currentState;
-    Maze currentMaze;
-    SolutionRepository mySolutions;
-    MazeRepository myMazes;
+    Maze* currentMaze;
+    SolutionRepository* mySolutions;
+    MazeRepository* myMazes;
     GameSystem();
 
 public:
     static GameSystem* getInstance();
     ~GameSystem();
     void listFiles();
-    Maze& chooseMaze(const string& name);
-    void changeMaze();
-    void saveMaze(Maze& maze);
+    void showMazes();
+    void showCurrent(){currentMaze->display();};
+    Maze* chooseMaze(const string& name);
+    // void changeMaze();
+    void saveMaze(Maze* maze);
     virtual void gameStart();
     virtual void gameReset();
     void exit();
+    void setCurrentMaze(Maze* toSet){currentMaze=toSet;};
+    Maze* loadMyMaze(int index);
+    Maze* getCurrentMaze(){return currentMaze;}
 };
 

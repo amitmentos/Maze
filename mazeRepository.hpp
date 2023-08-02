@@ -2,19 +2,22 @@
 #include <string.h>
 #include <iostream>
 #include <vector>
+#include "maze.hpp"
 using namespace std;
 
 class MazeRepository {
 private:
-    static MazeRepository* _instance;
-    vector<Maze> mazeList;
+    static MazeRepository* maze_instance;
+    vector<Maze*> mazeList;
     MazeRepository();
 
 public:
     static MazeRepository* getInstance();
     ~MazeRepository();
-    void saveMaze(Maze toAdd);
-    Maze getMaze(const string& name);
+    void saveMaze(Maze* toAdd);
+    Maze* getMaze(const string& name);
+    Maze* getMaze(int index);
     void showMaze(const string& name);
-    vector<Maze> getMazeList(){return mazeList;}
+    void showAllMazes();
+    vector<Maze*> getMazeList(){return mazeList;}
 };

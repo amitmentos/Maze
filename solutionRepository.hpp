@@ -7,7 +7,7 @@ using namespace std;
 
 class SolutionRepository {
 private:
-    static SolutionRepository* _instance;
+    static SolutionRepository* solution_instance;
     map<string, MazeSolution*> solutions;
     MazeSolution currrentSolution;
     SolutionRepository();
