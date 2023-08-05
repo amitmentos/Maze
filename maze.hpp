@@ -3,7 +3,7 @@
 #include <string.h>
 #include "point.hpp"
 #include "cell.hpp"
-
+#include <vector>
 using namespace std;
 
 
@@ -29,6 +29,8 @@ public:
     Cell* getEndPoint() const { return endPoint; }
     Cell* getCell(int i, int j)const{return &mazeBoard[i][j];}
     Cell* getUserPoint()const{return userPoint;}
+    void setCell(int x, int y, int cellValue);
     void setUserPoint(int x,int y){this->getUserPoint()->setX(x); this->getUserPoint()->setY(y);}
+    vector<Cell*> getNeighbors  (const Maze &maze, Cell *cell)const;
 };
 

@@ -3,6 +3,7 @@
 #include <iostream>
 using namespace std;
 #include <vector>
+#include <filesystem>
 #include "interface.hpp"
 #include "solutionRepository.hpp"
 #include "mazeRepository.hpp"
@@ -47,7 +48,10 @@ public:
     virtual void gameReset();
     void exit();
     void setCurrentMaze(Maze* toSet){currentMaze=toSet;};
-    Maze* loadMyMaze(int index);
+    Maze loadMyMaze(int index);
     Maze* getCurrentMaze(){return currentMaze;}
+    SolutionRepository* getmySolutions(){return mySolutions;}
+    void listFilesInDirectory(const std::string &path);
 };
+
 

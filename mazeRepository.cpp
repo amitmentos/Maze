@@ -2,6 +2,8 @@
 #include "maze.hpp"
 #include "generator.hpp"
 #include <string.h>
+#include <fstream>
+#include <sstream>
 #include <iostream>
 using namespace std;
 
@@ -32,6 +34,7 @@ void MazeRepository::saveMaze(Maze *toAdd)
     vector<string> compressedMaze = compressor.compress(*toAdd);
     cout << "Maze Name: " << compressedMaze[0] << endl;
     cout << "Compressed Maze: " << compressedMaze[1] << endl;
+    compressor.writeStringToFile(compressedMaze);
     // mazeList.push_back(toAdd);
 }
 
@@ -65,22 +68,33 @@ void MazeRepository::showMaze(const std::string &name)
 
 void MazeRepository::showAllMazes()
 {
-    if (mazeList.empty())
+    ifstream file("file.txt");
+    if (!file.is_open())
     {
-        cout << "No mazes in the repository.\n";
+        cerr << "Error: Unable to open file." << endl;
         return;
     }
 
-    cout << "All mazes in the repository:\n";
-    int index = 1;
-    for (Maze *maze : mazeList)
+    cout << "All mazes in the repository:" << endl;
+
+    string line;
+    int index = 0;
+    while (getline(file, line))
     {
-        cout << index << "- " << maze->getMazeName() << endl;
-        index++;
+        istringstream iss(line);
+        string mazeName, compressed;
+        if (getline(iss, mazeName, ','))
+        {
+            cout << index << ". " << mazeName << endl;
+            index++;
+        }
     }
+
+    file.close();
 }
 
-Maze *MazeRepository::getMaze(int index)
+Maze MazeRepository::getMaze(int index)
 {
-    return mazeList[index];
+    MazeCompressor compressor;
+    return compressor.decompress(index);
 }

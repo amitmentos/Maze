@@ -22,4 +22,9 @@ public:
         cellPoint.setY(toInsert.getY());
         cellType = toInsert.getType();
     }
+        bool operator==(const Cell &other) const {
+        // Implement comparison between Cells
+        // This is just an example, you need to compare actual member variables
+        return this->x == other.x && this->y == other.y && this->cellType == other.cellType;
+    }
 };

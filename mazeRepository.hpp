@@ -16,7 +16,7 @@ public:
     ~MazeRepository();
     void saveMaze(Maze* toAdd);
     Maze* getMaze(const string& name);
-    Maze* getMaze(int index);
+    Maze getMaze(int index);
     void showMaze(const string& name);
     void showAllMazes();
     vector<Maze*> getMazeList(){return mazeList;}

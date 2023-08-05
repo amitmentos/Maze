@@ -1,6 +1,7 @@
 #include "system.hpp"
 #include <string.h>
 #include <iostream>
+#include <filesystem>
 using namespace std;
 
 GameSystem *GameSystem::game_instance = nullptr;
@@ -109,7 +110,16 @@ void GameSystem::showMazes()
     myMazes->showAllMazes();
 }
 
-Maze *GameSystem::loadMyMaze(int index)
+Maze GameSystem::loadMyMaze(int index)
 {
     return myMazes->getMaze(index);
+}
+
+
+void GameSystem::listFilesInDirectory(const std::string &path)
+{
+    for (const auto &entry : std::filesystem::directory_iterator(path))
+    {
+        std::cout << entry.path() << std::endl;
+    }
 }

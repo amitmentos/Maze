@@ -1,5 +1,6 @@
 #include "string.h"
 #include <vector>
+#include <filesystem>
 #include "system.hpp"
 #include "generator.hpp"
 #include <iostream>
@@ -16,12 +17,16 @@ int main()
     int flag = 0;
     int flagNew = 0;
     int flagPlay = 1;
-    int flagBack=1;
+    int flagBack = 1;
     int whatMaze;
     GameSystem *myGame = GameSystem::getInstance();
     int whatSize;
     string mazeName;
     SimpleMaze2dGenerator newMazegenerator;
+    myMaze2dGenerator newAstargenerator;
+    Maze changeMaze;
+    std::filesystem::path currentPath = std::filesystem::current_path();
+
     cout << endl
          << endl;
     cout << "88,dPYba,,adPYba,  ,adPPYYba, 888888888  ,adPPYba,  \n";
@@ -58,7 +63,7 @@ int main()
             cin >> whatSize;
             cout << "What is the name of the maze you want to create?" << endl;
             cin >> mazeName;
-            Maze *newMaze = new Maze(newMazegenerator.generate(whatSize, mazeName));
+            Maze *newMaze = new Maze(newAstargenerator.generate(whatSize, mazeName));
             myGame->setCurrentMaze(newMaze);
             flag = 1;
             flagNew = 1;
@@ -70,21 +75,37 @@ int main()
             myGame->showMazes();
             cout << "What maze would you like to load?" << endl;
             cin >> whatMaze;
-            Maze *loadedMaze = myGame->loadMyMaze(whatMaze);
-            if (loadedMaze != nullptr)
-            {
-                myGame->setCurrentMaze(loadedMaze);
-            }
-            else
-            {
-                cout << "Error: Maze not found." << endl;
-            }
+            Maze loadedMaze = myGame->loadMyMaze(whatMaze);
+            myGame->setCurrentMaze(&loadedMaze);
+            flag = 1;
             flagNew = 0;
+            flagBack = 1;
             break;
         }
-            // case 3:
-            //     cout << "asd";
-            //     break;
+        case 3:
+            int whatPath;
+            cout << "Where do you want to list files from? (0- Current Path 1- Other)" << endl;
+            cin >> whatPath;
+            if (whatPath == 0)
+            {
+                myGame->listFilesInDirectory(currentPath.string());
+            }
+            if (whatPath == 1)
+            {
+                cout << "Please enter your path:" << endl;
+                string path;
+                cin >> path;
+
+                try
+                {
+                    myGame->listFilesInDirectory(path);
+                }
+                catch (const std::filesystem::filesystem_error &e)
+                {
+                    cout << e.what() << endl;
+                }
+            }
+            break;
 
             // default:
             //     cout << "asd";
@@ -98,7 +119,7 @@ int main()
                 cout << "What would you like to do?" << endl; // second menu
                 cout << "0- Back                   1-  Save Maze" << endl;
                 cout << "2- Play Maze              3-  Show Maze" << endl;
-                cout << "4- Show solution                       " << endl;
+                cout << "4- Show solution          5-  Change Maze" << endl;
                 cin >> select;
                 switch (select)
                 {
@@ -134,9 +155,21 @@ int main()
                     myGame->displayMaze(myGame->getCurrentMaze());
                     break;
 
-                    // default:
-                    //     cout << "asd";
-                    //     break;
+                case 4:
+                    myGame->getmySolutions()->showSolution(myGame->getCurrentMaze()->getMazeName());
+                    break;
+
+                case 5:
+                    myGame->showMazes();
+                    cout << "What maze would you like to change for?" << endl;
+                    cin >> whatMaze;
+                    changeMaze = myGame->loadMyMaze(whatMaze);
+                    myGame->setCurrentMaze(&changeMaze);
+                    break;
+
+                default:
+                    cout << "asd";
+                    break;
                 }
             }
         }

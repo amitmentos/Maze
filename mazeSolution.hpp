@@ -9,7 +9,7 @@ using namespace std;
 class MazeSolution
 {
 private:
-    Maze maze;
+    string name;
     // Algorithm *algorithms;
     vector<Cell> path;
 
@@ -20,6 +20,8 @@ public:
     void display();
 
     // Algorithm *getAlgorithm() const{return algorithms;}
-    Maze& getMaze() {return maze;}
+    string getMazeName() {return name;}
     vector<Cell> getPath() const{return path;}
+    void setPath(const vector<Cell>& toSet){path=toSet;}
+    void setName(const string& toCopy){name = toCopy;}
 };

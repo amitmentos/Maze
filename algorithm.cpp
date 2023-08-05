@@ -1,7 +1,9 @@
 #include "algorithm.hpp"
-#include <unordered_map>
+#include "maze.hpp"
 #include "cell.hpp"
 #include "point.hpp"
+#include <unordered_map>
+#include <utility>
 #include <string.h>
 #include <iostream>
 #include <cstdlib>
@@ -9,53 +11,129 @@
 #include <algorithm>
 #include <queue>
 #include <cmath>
+#include <vector>
 using namespace std;
+
+
+
+struct compare {
+    bool operator()(const pair<int, pair<int, int>>& p1, const pair<int, pair<int, int>>& p2) {
+        if (p1.first == p2.first) {
+            return rand() % 2;
+        }
+        return p1.first < p2.first;
+    }
+};
 
 // Algorithm::Algorithm() :algorithmName(nullptr) {}
 
-Algorithm* AlgorithmList::getAlgorithm(const std::string& name) {
-    for (Algorithm* algorithm : algorithms) {
-        if (algorithm->getAlgorithmName()== name)
+Algorithm *AlgorithmList::getAlgorithm(const std::string &name)
+{
+    for (Algorithm *algorithm : algorithms)
+    {
+        if (algorithm->getAlgorithmName() == name)
             return algorithm;
     }
     return nullptr;
 }
 
-void AlgorithmList::changeAlgorithm(const std::string& name) {
+void AlgorithmList::changeAlgorithm(const std::string &name)
+{
     currentAlgorithm = getAlgorithm(name);
 }
 
-vector<Cell> DFS::solveMaze(const Maze& maze) {
-       
+vector<Cell> AStar::solveMaze(const Maze &maze)
+{
+    std::priority_queue<Node *, std::vector<Node *>, CompareNode> openList;
+    std::map<Cell *, Node *> allNodes;
+
+    Node *startNode = new Node(maze.getCell(0, 0), nullptr, 0, heuristic(*(maze.getCell(0, 0)), *(maze.getCell(maze.getSize() - 1, maze.getSize() - 1))));
+    openList.push(startNode);
+    allNodes[maze.getCell(0, 0)] = startNode;
+
+    while (!openList.empty())
+    {
+        Node *current = openList.top();
+        openList.pop();
+
+        // goal found
+        if (current->cell == maze.getCell(maze.getSize() - 1, maze.getSize() - 1))
+        {
+            std::vector<Cell> path;
+            while (current != nullptr)
+            {
+                path.push_back(*(current->cell));
+                current = current->parent;
+            }
+            // cleanup
+            for (auto it : allNodes)
+            {
+                delete it.second;
+            }
+            std::reverse(path.begin(), path.end());
+            return path;
+        }
+
+        vector<Cell *> neighbors = maze.getNeighbors(maze, current->cell);
+        for (Cell *neighbor : neighbors)
+        {
+            if (neighbor->getType() == 1)
+            { // assuming 1 is walkable
+                float newG = current->g + 1;
+                float newH = heuristic(*neighbor, *(maze.getCell(maze.getSize() - 1, maze.getSize() - 1)));
+                if (allNodes.find(neighbor) == allNodes.end() || newG + newH < allNodes[neighbor]->f)
+                {
+                    Node *newNode = new Node(neighbor, current, newG, newH);
+                    openList.push(newNode);
+                    allNodes[neighbor] = newNode;
+                }
+            }
+        }
+    }
+
+    // no solution
+    for (auto it : allNodes)
+    {
+        delete it.second;
+    }
+    return std::vector<Cell>();
+}
+
+vector<Cell> DFS::solveMaze(const Maze &maze)
+{
+
     int mazeSize = maze.getSize();
-    Cell** mazeBoard = maze.getBoard();
-    
-    Cell* start = maze.getStartPoint();
-    Cell* end = maze.getEndPoint();
-    
+    Cell **mazeBoard = maze.getBoard();
+
+    Cell *start = maze.getStartPoint();
+    Cell *end = maze.getEndPoint();
+
     // Use a matrix to keep track of visited cells
     vector<vector<bool>> visited(mazeSize, vector<bool>(mazeSize, false));
-    
+
     // Use a stack for DFS
-    stack<Cell*> s;
+    stack<Cell *> s;
     s.push(start);
-    
+
     // We can also use a matrix to remember the parent of each cell
-    vector<vector<Cell*>> parent(mazeSize, vector<Cell*>(mazeSize, nullptr));
-    
+    vector<vector<Cell *>> parent(mazeSize, vector<Cell *>(mazeSize, nullptr));
+
     vector<int> dx = {0, 1, 0, -1};
     vector<int> dy = {1, 0, -1, 0};
-    
+
     visited[start->getPoint().getX()][start->getPoint().getY()] = true;
 
-    while(!s.empty()) {
-        Cell* curr = s.top();
+    while (!s.empty())
+    {
+        Cell *curr = s.top();
         s.pop();
-        
+
         // If we reach the end point, we stop
-        if(curr == end) {
+        if (curr == end)
+        {
             vector<Cell> path;
-            while(curr != start) {
+            while (curr != start)
+            {
                 path.push_back(*curr);
                 curr = parent[curr->getPoint().getX()][curr->getPoint().getY()];
             }
@@ -63,14 +141,17 @@ vector<Cell> DFS::solveMaze(const Maze& maze) {
             reverse(path.begin(), path.end());
             return path;
         }
-        
-        for(int i = 0; i < 4; i++) {
+
+        for (int i = 0; i < 4; i++)
+        {
             int newX = curr->getPoint().getX() + dx[i];
             int newY = curr->getPoint().getY() + dy[i];
-            
+
             // Check boundaries
-            if(newX >= 0 && newX < mazeSize && newY >= 0 && newY < mazeSize) {
-                if(!visited[newX][newY] && mazeBoard[newX][newY].isWalkable()) {
+            if (newX >= 0 && newX < mazeSize && newY >= 0 && newY < mazeSize)
+            {
+                if (!visited[newX][newY] && mazeBoard[newX][newY].isWalkable())
+                {
                     s.push(&mazeBoard[newX][newY]);
                     visited[newX][newY] = true;
                     parent[newX][newY] = curr;
@@ -82,156 +163,262 @@ vector<Cell> DFS::solveMaze(const Maze& maze) {
     // Return an empty vector if there is no solution
     return vector<Cell>();
 }
+#include <unordered_set>
 
-
-
-std::vector<Cell> BFS::solveMaze(const Maze& maze) {
+vector<Cell> BFS::solveMaze(const Maze &maze)
+{
     int size = maze.getSize();
+    queue<Node> bfsQueue;
+    unordered_set<int> visited;
 
-    // Create a 2D vector to keep track of visited cells
-    std::vector<std::vector<bool>> visited(size, std::vector<bool>(size, false));
+    // Push starting point
+    Cell start = *maze.getStartPoint();
+    bfsQueue.push(Node(start, {start}));
 
-    // Create a queue to perform BFS
-    std::queue<Point> q;
+    while (!bfsQueue.empty())
+    {
+        Node current = bfsQueue.front();
+        bfsQueue.pop();
 
-    // Get the start point from the maze
-    Point startPoint = *maze.getStartPoint();
+        // Check if current cell is end point
+        if (current.cell.getX() == maze.getEndPoint()->getX() && current.cell.getY() == maze.getEndPoint()->getY())
+        {
+            return current.path; // We found the path
+        }
 
-    // Enqueue the start point and mark it as visited
-    q.push(startPoint);
-    visited[startPoint.getX()][startPoint.getY()] = true;
+        // Create a unique hash for the current cell based on its x and y values
+        int hash = current.cell.getX() * size + current.cell.getY();
+        if (visited.find(hash) != visited.end())
+        {
+            continue; // Skip if already visited
+        }
+        visited.insert(hash);
 
-    // Map to keep track of the parent cell to reconstruct the path later
-    unordered_map<Point, Point> parent;
+        // Get all the neighbors of the current cell
+        vector<Point> directions = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
+        for (const Point &dir : directions)
+        {
+            int newX = current.cell.getX() + dir.getX();
+            int newY = current.cell.getY() + dir.getY();
 
-    // Perform BFS
-    while (!q.empty()) {
-        Point current = q.front();
-        q.pop();
-
-        // Get the neighbors of the current cell
-        std::vector<Point> neighbors = {
-            Point(current.getX() + 1, current.getY(), nullptr),
-            Point(current.getX() - 1, current.getY(), nullptr),
-            Point(current.getX(), current.getY() + 1, nullptr),
-            Point(current.getX(), current.getY() - 1, nullptr)
-        };
-
-        // Visit the unvisited neighbors and add them to the queue
-        for (const Point& neighbor : neighbors) {
-            int x = neighbor.getX();
-            int y = neighbor.getY();
-
-            if (x >= 0 && x < size && y >= 0 && y < size && !visited[x][y] && maze.getCell(x, y)->getType() == true) {
-                q.push(neighbor);
-                visited[x][y] = true;
-                parent[neighbor] = current;
+            // Check boundaries
+            if (newX >= 0 && newY >= 0 && newX < size && newY < size)
+            {
+                Cell neighbor = *maze.getCell(newX, newY);
+                if (neighbor.isWalkable())
+                {
+                    vector<Cell> newPath = current.path;
+                    newPath.push_back(neighbor);
+                    bfsQueue.push(Node(neighbor, newPath));
+                }
             }
         }
     }
 
-    // Reconstruct the path and return a vector of Cell objects representing the path
-    std::vector<Cell> path;
-    Point currentPoint = startPoint;
-
-    if (parent.find(currentPoint) != parent.end()) {
-        while (parent.find(currentPoint) != parent.end()) {
-            path.push_back(Cell(currentPoint.getX(), currentPoint.getY(), true));
-            currentPoint = parent[currentPoint];
-        }
-
-        // Add the start point to the path
-        path.push_back(Cell(startPoint.getX(), startPoint.getY(), true));
-
-        // Reverse the path so that it starts from the start point and ends at the end point
-        std::reverse(path.begin(), path.end());
-    }
-
-    return path;
+    // If we've exhausted all possibilities and haven't returned yet, there's no solution
+    return vector<Cell>();
 }
 
+vector<Cell> Prim::solveMaze(const Maze &maze)
+{
+    vector<vector<bool>> visited(maze.getSize(), vector<bool>(maze.getSize(), false));
+    vector<vector<pair<int, int>>> parent(maze.getSize(), vector<pair<int, int>>(maze.getSize()));
+    priority_queue<pair<int, pair<int, int>>, vector<pair<int, pair<int, int>>>, compare> pq;
 
+    // Start from the cell at position (0,0)
+    pq.push(make_pair(0, make_pair(0, 0)));
+    parent[0][0] = make_pair(-1, -1); // mark the starting cell's parent as (-1, -1)
 
-// vector<Cell> AStar::solveMaze(const Maze& maze) {
-//     struct Node {
-//         Cell cell;
-//         Node* parent;
-//         double g, h, f;
-//     };
-    
-//     auto computeH = [](const Point& a, const Point& b) -> double {
-//         return sqrt((a.getX() - b.getX()) * (a.getX() - b.getX()) + (a.getY() - b.getY()) * (a.getY() - b.getY()));
-//     };
+    while (!pq.empty())
+    {
+        int x = pq.top().second.first;
+        int y = pq.top().second.second;
+        pq.pop();
 
-//     vector<Node*> openList;
-//     vector<Node*> closedList;
+        if (visited[x][y])
+            continue;
 
-//     Node* start = new Node{maze.getStartPoint(), nullptr, 0, computeH(maze.getStartPoint().getPoint(), maze.getEndPoint().getPoint()), computeH(maze.getStartPoint().getPoint(), maze.getEndPoint().getPoint())};
-//     Node* goal = nullptr;
+        visited[x][y] = true;
 
-//     openList.push_back(start);
+        // Check if we've reached the goal
+        if (x == maze.getSize() - 1 && y == maze.getSize() - 1)
+            break;
 
-//     while(!openList.empty()) {
-//         Node* current = min_element(openList.begin(), openList.end(), [](Node a, Node* b) {
-//             return a->f < b->f;
-//         });
+        // Push all the unvisited neighbors of the current cell into the priority queue
+        vector<pair<int, int>> directions = {{-1, 0}, {0, -1}, {1, 0}, {0, 1}};
+        for (auto direction : directions)
+        {
+            int newX = x + direction.first;
+            int newY = y + direction.second;
+            if (newX >= 0 && newY >= 0 && newX < maze.getSize() && newY < maze.getSize() && !visited[newX][newY] && maze.getCell(newX, newY)->getType() == 1)
+            {
+                parent[newX][newY] = make_pair(x, y);
+                pq.push(make_pair(-maze.getCell(newX, newY)->getType(), make_pair(newX, newY)));
+            }
+        }
+    }
 
-//         if(current->cell.getPoint().getX() == maze.getEndPoint()->getPoint().getX() && current->cell.getPoint().getY() == maze.getEndPoint().getPoint().getY()) {
-//             goal = current;
-//             break;
+    // Build the path from start to goal
+    vector<Cell> path;
+    pair<int, int> current = make_pair(maze.getSize() - 1, maze.getSize() - 1);
+
+    while (!(current.first == 0 && current.second == 0))
+    {
+        path.push_back(*maze.getCell(current.first, current.second));
+        current = parent[current.first][current.second];
+        if (current.first == -1 && current.second == -1)
+        {
+            // This indicates that there's no valid path to the goal
+            path.clear();
+            break;
+        }
+    }
+    if (!path.empty())
+    {
+        path.push_back(*maze.getCell(0, 0)); // push the start cell
+        reverse(path.begin(), path.end());
+    }
+
+    if (!visited[maze.getSize() - 1][maze.getSize() - 1])
+    {
+        path.clear();
+    }
+    else
+    {
+        // If a valid solution was found, add the start cell to the path
+        path.push_back(*maze.getCell(0, 0));
+        reverse(path.begin(), path.end());
+    }
+    return path;
+}
+// #include "algorithm.hpp"
+// #include <unordered_map>
+// #include <unordered_set>
+// #include "cell.hpp"
+// #include "point.hpp"
+// #include <string.h>
+// #include <iostream>
+// #include <cstdlib>
+// #include <stack>
+// #include <algorithm>
+// #include <queue>
+// #include <cmath>
+// #include <vector>
+// using namespace std;
+
+// Algorithm* AlgorithmList::getAlgorithm(const std::string& name) {
+//     for (Algorithm* algorithm : algorithms) {
+//         if (algorithm->getAlgorithmName()== name)
+//             return algorithm;
+//     }
+//     return nullptr;
+// }
+
+// void AlgorithmList::changeAlgorithm(const std::string& name) {
+//     currentAlgorithm = getAlgorithm(name);
+// }
+
+// vector<Cell> DFS::solveMaze(const Maze& maze) {
+
+//     int mazeSize = maze.getSize();
+//     Cell** mazeBoard = maze.getBoard();
+
+//     Cell* start = maze.getStartPoint();
+//     Cell* end = maze.getEndPoint();
+
+//     // Use a matrix to keep track of visited cells
+//     vector<vector<bool>> visited(mazeSize, vector<bool>(mazeSize, false));
+
+//     // Use a stack for DFS
+//     stack<Cell*> s;
+//     s.push(start);
+
+//     // We can also use a matrix to remember the parent of each cell
+//     vector<vector<Cell*>> parent(mazeSize, vector<Cell*>(mazeSize, nullptr));
+
+//     vector<int> dx = {0, 1, 0, -1};
+//     vector<int> dy = {1, 0, -1, 0};
+
+//     visited[start->getPoint().getX()][start->getPoint().getY()] = true;
+
+//     while(!s.empty()) {
+//         Cell* curr = s.top();
+//         s.pop();
+
+//         // If we reach the end point, we stop
+//         if(curr == end) {
+//             vector<Cell> path;
+//             while(curr != start) {
+//                 path.push_back(*curr);
+//                 curr = parent[curr->getPoint().getX()][curr->getPoint().getY()];
+//             }
+//             path.push_back(*start);
+//             reverse(path.begin(), path.end());
+//             return path;
 //         }
 
-//         openList.erase(remove(openList.begin(), openList.end(), current), openList.end());
-//         closedList.push_back(current);
+//         for(int i = 0; i < 4; i++) {
+//             int newX = curr->getPoint().getX() + dx[i];
+//             int newY = curr->getPoint().getY() + dy[i];
 
-//         // Generate successors (for simplicity, we assume 4-connected grid: up, down, left, right)
-//         for(int dx = -1; dx <= 1; dx++) {
-//             for(int dy = -1; dy <= 1; dy++) {
-//                 if((dx == 0) == (dy == 0)) continue; // This skips diagonal and non-movement cases
-
-//                 int newX = current->cell.getPoint().getX() + dx;
-//                 int newY = current->cell.getPoint().getY() + dy;
-
-//                 if(newX < 0 || newX >= maze.getSize() || newY < 0 || newY >= maze.getSize()) continue; // Out of bounds
-//                 if(!maze.getCell(newX, newY).isWalkable()) continue; // Unwalkable cell
-
-//                 double tentative_g = current->g + 1.0;
-//                 double h = computeH(Point(newX, newY), maze.getEndPoint().getPoint());
-//                 double f = tentative_g + h;
-
-//                 auto inList = [&](const vector<Node*>& list, const Point& point) -> Node* {
-//                     for(Node* node : list) {
-//                         if(node->cell.getPoint().getX() == point.getX() && node->cell.getPoint().getY() == point.getY()) {
-//                             return node;
-//                         }
-//                     }
-//                     return nullptr;
-//                 };
-
-//                 Node* successorInOpen = inList(openList, Point(newX, newY));
-//                 Node* successorInClosed = inList(closedList, Point(newX, newY));
-
-//                 if(successorInOpen && successorInOpen->f <= f) continue;
-//                 if(successorInClosed && successorInClosed->f <= f) continue;
-
-//                 Node* successor = new Node{maze.getCell(newX, newY), current, tentative_g, h, f};
-//                 openList.push_back(successor);
+//             // Check boundaries
+//             if(newX >= 0 && newX < mazeSize && newY >= 0 && newY < mazeSize) {
+//                 if(!visited[newX][newY] && mazeBoard[newX][newY].isWalkable()) {
+//                     s.push(&mazeBoard[newX][newY]);
+//                     visited[newX][newY] = true;
+//                     parent[newX][newY] = curr;
+//                 }
 //             }
 //         }
 //     }
 
-//     vector<Cell> path;
-//     if(goal) {
-//         Node* current = goal;
-//         while(current) {
-//             path.push_back(current->cell);
-//             current = current->parent;
+//     // Return an empty vector if there is no solution
+//     return vector<Cell>();
+// }
+
+// vector<Cell> BFS::solveMaze(const Maze& maze) {
+//     int size = maze.getSize();
+//     queue<Node> bfsQueue;
+//     unordered_set<int> visited;
+
+//     // Push starting point
+//     Cell start = *maze.getStartPoint();
+//     bfsQueue.push(Node(start, {start}));
+
+//     while (!bfsQueue.empty()) {
+//         Node current = bfsQueue.front();
+//         bfsQueue.pop();
+
+//         // Check if current cell is end point
+//         if (current.cell.getX() == maze.getEndPoint()->getX() && current.cell.getY() == maze.getEndPoint()->getY()) {
+//             return current.path;  // We found the path
 //         }
-//         reverse(path.begin(), path.end());
+
+//         // Create a unique hash for the current cell based on its x and y values
+//         int hash = current.cell.getX() * size + current.cell.getY();
+//         if (visited.find(hash) != visited.end()) {
+//             continue;  // Skip if already visited
+//         }
+//         visited.insert(hash);
+
+//         // Get all the neighbors of the current cell
+//         vector<Point> directions = {{0,1}, {0,-1}, {1,0}, {-1,0}};
+//         for (const Point& dir : directions) {
+//             int newX = current.cell.getX() + dir.getX();
+//             int newY = current.cell.getY() + dir.getY();
+
+//             // Check boundaries
+//             if (newX >= 0 && newY >= 0 && newX < size && newY < size) {
+//                 Cell neighbor = *maze.getCell(newX, newY);
+//                 if (neighbor.isWalkable()) {
+//                     vector<Cell> newPath = current.path;
+//                     newPath.push_back(neighbor);
+//                     bfsQueue.push(Node(neighbor, newPath));
+//                 }
+//             }
+//         }
 //     }
 
-//     for(Node* node : openList) delete node;
-//     for(Node* node : closedList) delete node;
-
-//     return path;
+//     // If we've exhausted all possibilities and haven't returned yet, there's no solution
+//     return vector<Cell>();
 // }

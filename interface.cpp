@@ -9,7 +9,7 @@ UserInterface::~UserInterface()
 
 bool checkNewPoint(int newX, int newY, int mazeSize, Maze &mazeBoard)
 {
-    cout << newX << newY << mazeSize << mazeBoard.getCell(newX, newY)->isWalkable() << endl;
+    // cout << newX << newY << endl<<flush;
     if (newX < 0 || newY < 0 || newX >= mazeSize || newY >= mazeSize || !mazeBoard.getCell(newX, newY)->isWalkable())
     {
         cout << "invaild command!!" << endl;
@@ -17,7 +17,6 @@ bool checkNewPoint(int newX, int newY, int mazeSize, Maze &mazeBoard)
     }
     return true;
 }
-
 
 GraphicalInterface::GraphicalInterface()
 {
@@ -92,5 +91,19 @@ void GraphicalInterface::execute(myCommands &cmd, Maze *currMaze)
         break;
     default:
         cout << "Invalid command!\n";
+    }
+    if (newX == currMaze->getEndPoint()->getX() && newY == currMaze->getEndPoint()->getY())
+    {
+        cout << "              .-=========-." << endl;
+        cout << "              \\'-=======-'/" << endl;
+        cout << "              _|   .=.   |_" << endl;
+        cout << "             ((|  {{1}}  |))" << endl;
+        cout << "              \\|   /|\\   |/" << endl;
+        cout << "               \\__ '`' __/" << endl;
+        cout << "                 _`) (`_" << endl;
+        cout << "      Winner!  _/_______\\_" << endl;
+        cout << "              /___________\\" << endl;
+        currMaze->setUserPoint(0,0);
+        cout << "---------------------------------------------------------------------------------"<<endl;
     }
 }

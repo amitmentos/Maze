@@ -8,14 +8,14 @@ using namespace std;
 class SolutionRepository {
 private:
     static SolutionRepository* solution_instance;
-    map<string, MazeSolution*> solutions;
+    map<string, MazeSolution> solutions;
     MazeSolution currrentSolution;
     SolutionRepository();
 
 public:
     static SolutionRepository* getInstance();
     ~SolutionRepository();
-    bool saveSolution(const string& mazeName, MazeSolution* toAdd);
+    bool saveSolution(const string& mazeName, MazeSolution toAdd);
     MazeSolution* getSolution(const string& name);
     void showSolution(const string& name);
 };
