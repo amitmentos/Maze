@@ -8,16 +8,20 @@ using namespace std;
 class MazeRepository {
 private:
     static MazeRepository* maze_instance;
-    vector<Maze*> mazeList;
+    vector<Maze> mazeList;
     MazeRepository();
 
 public:
     static MazeRepository* getInstance();
     ~MazeRepository();
     void saveMaze(Maze* toAdd);
-    Maze* getMaze(const string& name);
+    Maze getMaze(const string& name);
     Maze getMaze(int index);
+    Maze getMazeFromList(int index){return mazeList[index];}
     void showMaze(const string& name);
-    void showAllMazes();
-    vector<Maze*> getMazeList(){return mazeList;}
+    bool showAllMazes(int index);
+    vector<Maze> getMazeList(){return mazeList;}
+    void saveMazeExist(Maze *toAdd, int index);
+    void saveMazeToRepository(Maze toAdd);
+    void showMazeList();
 };

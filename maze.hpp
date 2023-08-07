@@ -34,3 +34,6 @@ public:
     vector<Cell*> getNeighbors  (const Maze &maze, Cell *cell)const;
 };
 
+class noMazeFound:public Maze{
+
+};

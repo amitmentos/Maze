@@ -39,7 +39,7 @@ Maze::Maze(const Maze &toCopy) : size(toCopy.size), mazeName(toCopy.mazeName)
 
     if (toCopy.userPoint != nullptr)
     {
-        userPoint = toCopy.userPoint;
+        userPoint = new Cell(*(toCopy.userPoint));
     }
     else
     {
@@ -58,9 +58,8 @@ Maze::~Maze()
     //     delete startPoint;
     // }
 
-    // delete endPoint;
     // cout<<"asd";
-    // delete userPoint;
+
 }
 
 void Maze::display()

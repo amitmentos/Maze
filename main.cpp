@@ -10,7 +10,7 @@ using namespace std;
 // Amit Ronen Id: 205733975
 // Ben Gurevich Id: 206904880
 //**********************************************************************************
-
+extern GameSystem *myGame;
 int main()
 {
     int select;
@@ -18,9 +18,9 @@ int main()
     int flagNew = 0;
     int flagPlay = 1;
     int flagBack = 1;
-    int whatMaze;
+    int whatMaze, whereToSave, whereToLoadFrom;
     GameSystem *myGame = GameSystem::getInstance();
-    int whatSize;
+    int whatSize, whatFile;
     string mazeName;
     SimpleMaze2dGenerator newMazegenerator;
     myMaze2dGenerator newAstargenerator;
@@ -47,8 +47,9 @@ int main()
             cout << "What would you like to do?" << endl; // first menu
             cout << "0- EXIT                        1-  Create Maze" << endl;
             cout << "2- Load Maze                   3-  List files" << endl;
+            cout << "4- Get file size               5- List maze I created" << endl;
             cin >> select;
-        } while (select < 0 || select > 3);
+        } while (select < 0 || select > 5);
 
         switch (select)
         {
@@ -72,11 +73,26 @@ int main()
         }
         case 2:
         {
-            myGame->showMazes();
-            cout << "What maze would you like to load?" << endl;
-            cin >> whatMaze;
-            Maze loadedMaze = myGame->loadMyMaze(whatMaze);
-            myGame->setCurrentMaze(&loadedMaze);
+            cout << "Would you like to load from a file or one that you created?(0-File | 1- Created)" << endl;
+            cin >> whereToLoadFrom;
+            if (!whereToLoadFrom)
+            {
+                myGame->listTxtFilesInDirectory();
+                cout << "what file would you like to choose?" << endl;
+                cin >> whatFile;
+                myGame->showMazes(whatFile);
+                cout << "What maze would you like to load?" << endl;
+                cin >> whatMaze;
+                Maze loadedMaze = myGame->loadMyMaze(whatMaze);
+                myGame->setCurrentMaze(&loadedMaze);
+            }
+            else{
+                myGame->showMyMazes();
+                cout << "What maze would you like to load?" << endl;
+                cin >> whatMaze;
+                Maze loadedMaze2 = myGame->loadMyMazeFromRepository(whatMaze);
+                myGame->setCurrentMaze(&loadedMaze2);
+            }
             flag = 1;
             flagNew = 0;
             flagBack = 1;
@@ -107,6 +123,33 @@ int main()
             }
             break;
 
+        case 4:
+            int whatPathSize;
+            cout << "Where do you want to get size of the file from? (0- Current Path 1- Other)" << endl;
+            cin >> whatPathSize;
+            if (whatPathSize == 0)
+            {
+                myGame->getFileSize(currentPath.string());
+            }
+            if (whatPathSize == 1)
+            {
+                cout << "Please enter your path:" << endl;
+                string path;
+                cin >> path;
+
+                try
+                {
+                    myGame->getFileSize(path);
+                }
+                catch (const std::filesystem::filesystem_error &e)
+                {
+                    cout << e.what() << endl;
+                }
+            }
+        case 5:
+            myGame->showMyMazes();
+            break;
+
             // default:
             //     cout << "asd";
             //     break;
@@ -130,7 +173,17 @@ int main()
                 case 1:
                     if (flagNew)
                     {
-                        myGame->saveMaze(myGame->getCurrentMaze());
+                        cout << "What do you want to save the maze to?(0- Choose TXT file | 1- create new file)" << endl;
+                        cin >> whereToSave;
+                        if (whereToSave)
+                        {
+                            myGame->saveMaze(myGame->getCurrentMaze());
+                        }
+                        else
+                        {
+                            myGame->listTxtFilesInDirectory();
+                            myGame->saveMazeExistF(myGame->getCurrentMaze());
+                        }
                         cout << "Current maze was saved successfully!!" << endl;
                         break;
                     }
@@ -160,7 +213,10 @@ int main()
                     break;
 
                 case 5:
-                    myGame->showMazes();
+                    myGame->listTxtFilesInDirectory();
+                    cout << "what file would you like to choose?" << endl;
+                    cin >> whatFile;
+                    myGame->showMazes(whatFile);
                     cout << "What maze would you like to change for?" << endl;
                     cin >> whatMaze;
                     changeMaze = myGame->loadMyMaze(whatMaze);

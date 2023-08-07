@@ -39,9 +39,9 @@ public:
     static GameSystem* getInstance();
     ~GameSystem();
     void listFiles();
-    void showMazes();
+    void showMazes(int index);
     void showCurrent(){currentMaze->display();};
-    Maze* chooseMaze(const string& name);
+    Maze chooseMaze(const string& name);
     // void changeMaze();
     void saveMaze(Maze* maze);
     virtual void gameStart();
@@ -49,9 +49,16 @@ public:
     void exit();
     void setCurrentMaze(Maze* toSet){currentMaze=toSet;};
     Maze loadMyMaze(int index);
+    Maze loadMyMazeFromRepository(int index);
     Maze* getCurrentMaze(){return currentMaze;}
     SolutionRepository* getmySolutions(){return mySolutions;}
+    MazeRepository* getMyMazes(){return myMazes;}
     void listFilesInDirectory(const std::string &path);
+    void listTxtFilesInDirectory();
+    void listTxtFilesInDirectory(vector<string> &txtFiles);
+    void getFileSize(const string& path);
+    void saveMazeExistF(Maze* maze);
+    void showMyMazes(){myMazes->showMazeList();}
 };
 
 
