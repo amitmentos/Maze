@@ -10,6 +10,9 @@ std::chrono::high_resolution_clock::time_point endTimeS;
 GameSystem *GameSystem::game_instance = nullptr;
 
 GameSystem::~GameSystem(){
+    // if(currentMaze) delete currentMaze; 
+    if(mySolutions)  delete mySolutions; 
+    if(myMazes) delete myMazes; 
 }
 
 GameSystem::GameSystem()
@@ -218,7 +221,6 @@ void GameSystem::listTxtFilesInDirectory()
 
 void GameSystem::listTxtFilesInDirectory(vector<string> &txtFiles)
 {
-    // cout << "Existing .txt files in the current directory:" << endl;
 
     txtFiles.clear();
 
@@ -228,7 +230,6 @@ void GameSystem::listTxtFilesInDirectory(vector<string> &txtFiles)
         if (entry.path().extension() == ".txt")
         {
             txtFiles.push_back(entry.path().filename());
-            // cout << index << ". " << entry.path().filename() << endl;
             index++;
         }
     }
@@ -260,7 +261,7 @@ string GameSystem::getFileNameByIndex(int index)
 
 
 void GameSystem::compareAlgorithms(Algorithm* algorithm1, Algorithm* algorithm2){
-    algorithm1->getAlgorithmNameOS(cout)<<" runtime:"<<endl<<endl;
+    algorithm1->getAlgorithmNameOS(cout)<<" runtime:"<<endl;
     startTimerS();
     algorithm1->solveMaze(*this->currentMaze);
     stopTimerS();

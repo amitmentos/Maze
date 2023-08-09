@@ -48,7 +48,7 @@ bool MazeCompressor::writeStringToFile(const vector<string> &content)
 
     if (fileName.substr(fileName.find_last_of(".") + 1) != "txt")
     {
-        fileName += ".txt"; // Make sure the extension is .txt
+        fileName += ".txt"; 
     }
 
     // Check if the chosen file name already exists
@@ -212,7 +212,6 @@ bool SimpleMaze2dGenerator::hasSolution(const Maze &maze)
 {
     Prim bfsSolver;
     MazeSolution solutionPath;
-    // GameSystem *myGame = GameSystem::getInstance();
     solutionPath.setPath(bfsSolver.solveMaze(maze));
     solutionPath.setName(maze.getMazeName());
     if (solutionPath.getPath().empty())
@@ -221,7 +220,6 @@ bool SimpleMaze2dGenerator::hasSolution(const Maze &maze)
     }
 
     myGame->getmySolutions()->saveSolution(maze.getMazeName(), solutionPath);
-    myGame->getmySolutions()->showSolution(maze.getMazeName());
     std::cout << std::endl;
     return true;
 }
@@ -387,7 +385,6 @@ Maze myMaze2dGenerator::generate(int size, string mazeName)
     solutionPathM.setPath(solutionPath);
     solutionPathM.setName(newMaze.getMazeName());
     myGame->getmySolutions()->saveSolution(newMaze.getMazeName(), solutionPathM);
-    myGame->getmySolutions()->showSolution(newMaze.getMazeName());
 
     // Randomly change cells not in the solution path to 0 or 1
     for (int i = 0; i < size; i++)
@@ -462,14 +459,12 @@ MazeSolution MazeCompressor::decompressPath(const std::string& mazeName)
 
     while (std::getline(file, line))
     {
-        // Check if the line contains the mazeName
         if (line.find(mazeName) != std::string::npos)
         {
             foundSolution = true;
             std::istringstream iss(line);
             std::string token;
 
-            // Skip the mazeName token
             std::getline(iss, token, ',');
             
             // Process the remaining tokens as coordinates
@@ -484,7 +479,6 @@ MazeSolution MazeCompressor::decompressPath(const std::string& mazeName)
                     {
                         path.push_back(Cell(x, y, 1));
                     }
-                    // Skip the comma and closing parenthesis
                     iss >> comma;
                 }
             }
@@ -496,13 +490,6 @@ MazeSolution MazeCompressor::decompressPath(const std::string& mazeName)
 
     if (!path.empty())
     {
-        // Print the decompressed path for debugging
-        std::cout << "Decompressed path for maze " << mazeName << ":" << std::endl;
-        for (const Cell& cell : path)
-        {
-            std::cout << "(" << cell.getX() << "," << cell.getY() << ") ";
-        }
-        std::cout << std::endl;
 
         // Create the MazeSolution with the decompressed path
         MazeSolution decompressedSolution(mazeName);

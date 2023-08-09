@@ -43,7 +43,6 @@ public:
     void showMazes(int index);
     void showCurrent(){currentMaze->display();};
     Maze chooseMaze(const string& name);
-    // void changeMaze();
     void saveMaze(Maze* maze);
     virtual void gameStart();
     virtual void gameReset();

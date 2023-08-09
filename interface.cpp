@@ -9,7 +9,6 @@ UserInterface::~UserInterface()
 
 bool checkNewPoint(int newX, int newY, int mazeSize, Maze &mazeBoard)
 {
-    // cout << newX << newY << endl<<flush;
     if (newX < 0 || newY < 0 || newX >= mazeSize || newY >= mazeSize || !mazeBoard.getCell(newX, newY)->isWalkable())
     {
         cout << "invaild command!!" << endl;

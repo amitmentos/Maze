@@ -8,13 +8,12 @@
 #include <iostream>
 using namespace std;
 
-
-
 MazeRepository *MazeRepository::maze_instance = nullptr;
 
 MazeRepository::MazeRepository() {}
 
-bool isFileEmpty(const std::string& fileName) {
+bool isFileEmpty(const std::string &fileName)
+{
     std::ifstream file(fileName);
     return file.peek() == std::ifstream::traits_type::eof();
 }
@@ -51,7 +50,6 @@ void MazeRepository::saveMazeExist(Maze *toAdd, int index)
     compressor.appendContentToFile(compressedMaze, index);
     // mazeList.push_back(toAdd);
 }
-
 
 Maze MazeRepository::getMaze(const string &name)
 {
@@ -90,10 +88,12 @@ bool MazeRepository::showAllMazes(int fileIndex)
     {
         throw std::runtime_error("Invaild value.");
     }
-    if (fileIndex >= 0 && fileIndex < txtFiles.size() && txtFiles[fileIndex] != "solution.txt") {
+    if (fileIndex >= 0 && fileIndex < txtFiles.size() && txtFiles[fileIndex] != "solution.txt")
+    {
         string chosenFile = txtFiles[fileIndex];
         ifstream file(chosenFile);
-        if (!file.is_open()) {
+        if (!file.is_open())
+        {
             cerr << "Error: Unable to open file." << endl;
             return false;
         }
@@ -115,36 +115,40 @@ bool MazeRepository::showAllMazes(int fileIndex)
 
         file.close();
         return true;
-    } else {
+    }
+    else
+    {
         cerr << "Invalid file index." << endl;
-        return false;
+        throw runtime_error("Invalid file index.");
     }
 }
 
 Maze MazeRepository::getMaze(int index, string fileName)
 {
-    
+
     MazeCompressor compressor;
     GameSystem *myGame = GameSystem::getInstance();
     MazeSolution mySolution;
-    Maze myMaze = compressor.decompress(fileName,index);
+    Maze myMaze = compressor.decompress(fileName, index);
     mySolution = compressor.decompressPath(myMaze.getMazeName());
 
-    myGame->getmySolutions()->saveSolution(mySolution.getMazeName(),mySolution);
+    myGame->getmySolutions()->saveSolution(mySolution.getMazeName(), mySolution);
     return myMaze;
 }
 
-void MazeRepository::saveMazeToRepository(Maze toAdd) {
+void MazeRepository::saveMazeToRepository(Maze toAdd)
+{
     // Check if a maze with the same name already exists in the repository
-    for (Maze maze : mazeList) {
-        if (maze.getMazeName() == toAdd.getMazeName()) {
+    for (Maze maze : mazeList)
+    {
+        if (maze.getMazeName() == toAdd.getMazeName())
+        {
             std::cout << "Maze with name '" << toAdd.getMazeName() << "' already exists in the repository." << std::endl;
-            return;  // Maze with the same name found, no need to add
+            return; // Maze with the same name found, no need to add
         }
     }
     mazeList.push_back(toAdd);
 }
-
 
 void MazeRepository::showMazeList()
 {
@@ -163,7 +167,11 @@ void MazeRepository::showMazeList()
     }
 }
 
-
-
-
-
+Maze MazeRepository::getMazeFromList(int index)
+{
+    if (index < 0 || index >= mazeList.size())
+    {
+        throw std::out_of_range("Invalid index for maze.");
+    }
+    return mazeList[index];
+}

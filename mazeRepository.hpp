@@ -17,7 +17,7 @@ public:
     void saveMaze(Maze* toAdd);
     Maze getMaze(const string& name);
     Maze getMaze(int index, string fileName);
-    Maze getMazeFromList(int index){return mazeList[index];}
+    Maze getMazeFromList(int index);
     void showMaze(const string& name);
     bool showAllMazes(int index);
     vector<Maze> getMazeList(){return mazeList;}

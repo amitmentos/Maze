@@ -21,7 +21,6 @@ SolutionRepository::~SolutionRepository() {
 
 bool SolutionRepository::saveSolution(const string& mazeName, MazeSolution toAdd) {
     if (solutions.find(mazeName) != solutions.end()) {
-        std::cout << "Solution for maze '" << mazeName << "' already exists." << std::endl;
         return false;
     }
     solutions[mazeName] = toAdd;
@@ -39,9 +38,9 @@ MazeSolution* SolutionRepository::getSolution(const string& name) {
 void SolutionRepository::showSolution(const string& name) {
     auto it = solutions.find(name);
     if (it != solutions.end()) {
-        // Display solution details (modify as per your mazeSolution class implementation)
+        // Display solution details 
         cout << "Solution for maze '" << name << "':" << endl;
-        it->second.display(); // Assuming there's a showDetails() function in mazeSolution
+        it->second.display(); 
     } else {
         cout << "Solution for maze '" << name << "' not found." << endl;
     }

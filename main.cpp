@@ -18,7 +18,7 @@ int main()
     int flagNew = 0;
     int flagPlay = 1;
     int flagBack = 1;
-    int whatMaze, whereToSave, whereToLoadFrom, WhatAlgorithm,compare1, compare2;
+    int whatMaze, whereToSave, whereToLoadFrom, WhatAlgorithm, compare1, compare2;
     GameSystem *myGame = GameSystem::getInstance();
     int whatSize, whatFile;
     string mazeName;
@@ -26,10 +26,12 @@ int main()
     myMaze2dGenerator newPrimgenerator;
     Maze changeMaze;
     bool loadedSuccessfully = false;
+    bool loadFileSucc = false;
+    bool loadFileSucc2 = false;
     AlgorithmList algorithmList;
-    BFS* bfs = new BFS;
-    AStar* astar= new AStar;
-    Prim* prim = new Prim;
+    BFS *bfs = new BFS;
+    AStar *astar = new AStar;
+    Prim *prim = new Prim;
     algorithmList.addAlgorithm(bfs);
     algorithmList.addAlgorithm(astar);
     algorithmList.addAlgorithm(prim);
@@ -59,6 +61,8 @@ int main()
             cin >> select;
         } while (select < 0 || select > 5);
         loadedSuccessfully = false;
+        loadFileSucc = false;
+        loadFileSucc2 = false;
         switch (select)
         {
         case 0:
@@ -71,17 +75,19 @@ int main()
         }
         case 1:
         {
-            cout<<"What algorithm do you want to use to create the maze?(0- Random | 1- Prim)"<<endl;
-            cin>>WhatAlgorithm;
+            cout << "What algorithm do you want to use to create the maze?(0- Random | 1- Prim)" << endl;
+            cin >> WhatAlgorithm;
             cout << "What is the size of the maze you want to create?" << endl;
             cin >> whatSize;
             cout << "What is the name of the maze you want to create?" << endl;
             cin >> mazeName;
-            if(!WhatAlgorithm){
+            if (!WhatAlgorithm)
+            {
                 Maze *newMaze = new Maze(newMazegenerator.generate(whatSize, mazeName));
                 myGame->setCurrentMaze(newMaze);
             }
-            else{
+            else
+            {
                 Maze *newMaze = new Maze(newPrimgenerator.generate(whatSize, mazeName));
                 myGame->setCurrentMaze(newMaze);
             }
@@ -101,25 +107,47 @@ int main()
                 {
                     if (whereToLoadFrom == 0)
                     {
-                        myGame->listTxtFilesInDirectory();
-                        cout << "What file would you like to choose?" << endl;
-                        cin >> whatFile;
-                        myGame->showMazes(whatFile);
-                        cout << "What maze would you like to load?" << endl;
-                        cin >> whatMaze;
-
+                        do
+                        {
+                            try
+                            {
+                                myGame->listTxtFilesInDirectory();
+                                cout << "What file would you like to choose?" << endl;
+                                cin >> whatFile;
+                                myGame->showMazes(whatFile);
+                                cout << "What maze would you like to load?" << endl;
+                                cin >> whatMaze;
+                                loadFileSucc2 = true;
+                            }
+                            catch (const std::exception &ex)
+                            {
+                                cout << "An exception occurred: " << ex.what() << endl;
+                            }
+                        } while (!loadFileSucc2);
                         Maze loadedMaze = myGame->loadMyMaze(whatMaze, myGame->getFileNameByIndex(whatFile));
                         myGame->setCurrentMaze(&loadedMaze);
                     }
-                    if(whereToLoadFrom==1)
+                    if (whereToLoadFrom == 1)
                     {
-                        myGame->showMyMazes();
-                        cout << "What maze would you like to load?" << endl;
-                        cin >> whatMaze;
-                        Maze loadedMaze2 = myGame->loadMyMazeFromRepository(whatMaze);
-                        myGame->setCurrentMaze(&loadedMaze2);
+                        do
+                        {
+                            try
+                            {
+                                myGame->showMyMazes();
+                                cout << "What maze would you like to load?" << endl;
+                                cin >> whatMaze;
+                                Maze loadedMaze2 = myGame->loadMyMazeFromRepository(whatMaze);
+                                myGame->setCurrentMaze(&loadedMaze2);
+                                loadFileSucc = true;
+                            }
+                            catch (const std::exception &ex)
+                            {
+                                cout << "An exception occurred: " << ex.what() << endl;
+                            }
+                        } while (!loadFileSucc2);
                     }
-                    if(whereToLoadFrom==2)  break;
+                    if (whereToLoadFrom == 2)
+                        break;
                     // No exceptions were thrown, so set e to false to exit the loop
                     loadedSuccessfully = true;
                     flag = 1;
@@ -186,24 +214,26 @@ int main()
             myGame->showMyMazes();
             break;
 
-            default:
-                cout << "Please try again"<<endl;
-                break;
+        default:
+            cout << "Please try again" << endl;
+            break;
         }
         if (flag)
         {
             while (flagBack)
             {
-                do{
-                cout << "----------------------------------------------------------------------------------------------------------" << endl;
-                cout << "What would you like to do?" << endl; // second menu
-                cout << "0- Back                   1-  Save Maze" << endl;
-                cout << "2- Play Maze              3-  Show Maze" << endl;
-                cout << "4- Show solution          5-  Change Maze" << endl;
-                cout << "6- Test algorithms          " << endl;
-                cin >> select;
-                loadedSuccessfully = false;
-                }while(select<0 || select>6);
+                do
+                {
+                    cout << "----------------------------------------------------------------------------------------------------------" << endl;
+                    cout << "What would you like to do?" << endl; // second menu
+                    cout << "0- Back                   1-  Save Maze" << endl;
+                    cout << "2- Play Maze              3-  Show Maze" << endl;
+                    cout << "4- Show solution          5-  Change Maze" << endl;
+                    cout << "6- Test algorithms          " << endl;
+                    cin >> select;
+                    loadedSuccessfully = false;
+                    loadFileSucc = false;
+                } while (select < 0 || select > 6);
                 switch (select)
                 {
                 case 0:
@@ -263,28 +293,51 @@ int main()
                         {
                             if (whereToLoadFrom == 0)
                             {
-                                myGame->listTxtFilesInDirectory();
-                                cout << "What file would you like to choose?" << endl;
-                                cin >> whatFile;
-                                myGame->showMazes(whatFile);
-                                cout << "What maze would you like to load?" << endl;
-                                cin >> whatMaze;
+                                do
+                                {
+                                    try
+                                    {
+                                        myGame->listTxtFilesInDirectory();
+                                        cout << "What file would you like to choose?" << endl;
+                                        cin >> whatFile;
+                                        myGame->showMazes(whatFile);
+                                        cout << "What maze would you like to load?" << endl;
+                                        cin >> whatMaze;
+                                        loadFileSucc = true;
+                                    }
+                                    catch (const std::exception &ex)
+                                    {
+                                        cout << "An exception occurred: " << ex.what() << endl;
+                                    }
+                                } while (!loadFileSucc);
                                 Maze loadedMaze = myGame->loadMyMaze(whatMaze, myGame->getFileNameByIndex(whatFile));
                                 myGame->setCurrentMaze(&loadedMaze);
                                 loadedSuccessfully = true;
                             }
-                            if(whereToLoadFrom == 1)
+                            if (whereToLoadFrom == 1)
                             {
-                                myGame->showMyMazes();
-                                cout << "What maze would you like to load?" << endl;
-                                cin >> whatMaze;
-                                Maze loadedMaze2 = myGame->loadMyMazeFromRepository(whatMaze);
-                                myGame->setCurrentMaze(&loadedMaze2);
+                                do
+                                {
+                                    try
+                                    {
+                                        myGame->showMyMazes();
+                                        cout << "What maze would you like to load?" << endl;
+                                        cin >> whatMaze;
+                                        Maze loadedMaze2 = myGame->loadMyMazeFromRepository(whatMaze);
+                                        myGame->setCurrentMaze(&loadedMaze2);
+                                        loadFileSucc = true;
+                                    }
+                                    catch (const std::exception &ex)
+                                    {
+                                        cout << "An exception occurred: " << ex.what() << endl;
+                                    }
+                                } while (!loadFileSucc);
                                 loadedSuccessfully = true;
                             }
-                            if(whereToLoadFrom==2){loadedSuccessfully = true;}
-                            // No exceptions were thrown, so set e to false to exit the loop
-                            
+                            if (whereToLoadFrom == 2)
+                            {
+                                loadedSuccessfully = true;
+                            }
                         }
                         catch (const std::exception &ex)
                         {
@@ -294,15 +347,15 @@ int main()
                     break;
 
                 case 6:
-                    cout<<"Please choose the first algorith: (0- BFS | 1- A* | 2- Prim)"<<endl;
-                    cin>>compare1;
-                    cout<<"Please choose the first algorith: (0- BFS | 1- A* | 2- Prim)"<<endl;
-                    cin>>compare2;
-                    myGame->compareAlgorithms(algorithmList.getAlgorithm(compare1),algorithmList.getAlgorithm(compare2));
+                    cout << "Please choose the first algorith: (0- BFS | 1- A* | 2- Prim)" << endl;
+                    cin >> compare1;
+                    cout << "Please choose the second algorith: (0- BFS | 1- A* | 2- Prim)" << endl;
+                    cin >> compare2;
+                    myGame->compareAlgorithms(algorithmList.getAlgorithm(compare1), algorithmList.getAlgorithm(compare2));
                     break;
-                    
+
                 default:
-                    cout << "Please try again"<<endl;
+                    cout << "Please try again" << endl;
                     break;
                 }
             }

@@ -12,7 +12,6 @@ MazeSolution& MazeSolution::operator=(const MazeSolution& other) {
     return *this;
 }
 
-// MazeSolution::MazeSolution(const Maze &m, Algorithm *alg) : maze(m), algorithms(alg) {}
 void MazeSolution::display()
 {
     for (int i = 0; i < this->getPath().size(); i++)

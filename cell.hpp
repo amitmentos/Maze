@@ -14,7 +14,7 @@ public:
     Point getPoint() const { return cellPoint; }
     bool isWalkable() const { return cellType; }
     bool getType() { return cellType; }
-    bool getType()const { return cellType; }
+    bool getType() const { return cellType; }
     void setType(int toSet) { cellType = toSet; }
     void operator=(const Cell &toInsert)
     {
@@ -22,9 +22,8 @@ public:
         cellPoint.setY(toInsert.getY());
         cellType = toInsert.getType();
     }
-        bool operator==(const Cell &other) const {
-        // Implement comparison between Cells
-        // This is just an example, you need to compare actual member variables
+    bool operator==(const Cell &other) const
+    {
         return this->x == other.x && this->y == other.y && this->cellType == other.cellType;
     }
 };
