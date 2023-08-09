@@ -40,46 +40,33 @@ void stopTimer()
 }
 
 
-// bool MazeCompressor::writeStringToFile(const vector<string> &content)
-// {
-//     std::ofstream file("file.txt", ios::app);
-//     if (!file.is_open())
-//     {
-//         cerr << "Error: Unable to open file." << std::endl;
-//         return false;
-//     }
-
-//     file << content[0] << "," << content[1] << content[2] << std::endl;
-
- 
-//     file.close();
-
-
-//     return true;
-// }
-
-bool MazeCompressor::writeStringToFile(const vector<string>& content) {
+bool MazeCompressor::writeStringToFile(const vector<string> &content)
+{
     string fileName;
     cout << "Enter the name of the file to save (or choose from existing .txt files): ";
     cin >> fileName;
 
-    if (fileName.substr(fileName.find_last_of(".") + 1) != "txt") {
-        fileName += ".txt";  // Make sure the extension is .txt
+    if (fileName.substr(fileName.find_last_of(".") + 1) != "txt")
+    {
+        fileName += ".txt"; // Make sure the extension is .txt
     }
 
     // Check if the chosen file name already exists
-    if (fs::exists(fileName)) {
+    if (fs::exists(fileName))
+    {
         cout << "File already exists. Do you want to overwrite? (y/n): ";
         char response;
         cin >> response;
-        if (response != 'y' && response != 'Y') {
+        if (response != 'y' && response != 'Y')
+        {
             cout << "Aborted." << endl;
             return false;
         }
     }
 
     std::ofstream file(fileName, ios::app);
-    if (!file.is_open()) {
+    if (!file.is_open())
+    {
         cerr << "Error: Unable to open file." << std::endl;
         return false;
     }
@@ -89,15 +76,17 @@ bool MazeCompressor::writeStringToFile(const vector<string>& content) {
     return true;
 }
 
-
-bool MazeCompressor::appendContentToFile(const vector<string>& content, int fileIndex) {
+bool MazeCompressor::appendContentToFile(const vector<string> &content, int fileIndex)
+{
     vector<string> txtFiles;
     myGame->listTxtFilesInDirectory(txtFiles);
 
-    if (fileIndex >= 0 && fileIndex <= txtFiles.size()) {
+    if (fileIndex >= 0 && fileIndex <= txtFiles.size())
+    {
         string chosenFile = txtFiles[fileIndex];
         ofstream file(chosenFile, ios::app);
-        if (!file.is_open()) {
+        if (!file.is_open())
+        {
             cerr << "Error: Unable to open file." << endl;
             return false;
         }
@@ -106,19 +95,16 @@ bool MazeCompressor::appendContentToFile(const vector<string>& content, int file
         file.close();
 
         return true;
-    } else {
+    }
+    else
+    {
         cerr << "Invalid file index." << endl;
         return false;
     }
 }
-
-
-
-
-
-Maze MazeCompressor::decompress(int index)
+Maze MazeCompressor::decompress(const string& fileName, int index)
 {
-    std::ifstream file("file.txt");
+    std::ifstream file(fileName);
     if (!file.is_open())
     {
         throw std::runtime_error("Error: Unable to open file.");
@@ -217,6 +203,7 @@ Maze SimpleMaze2dGenerator::generate(int size, string mazeName)
         newMaze = generateNewMaze(size, mazeName);
     } while (!hasSolution(newMaze));
     stopTimer();
+    myGame->getMyMazes()->saveMazeToRepository(newMaze);
     return newMaze;
 }
 static int counter1 = 0;
@@ -227,7 +214,7 @@ bool SimpleMaze2dGenerator::hasSolution(const Maze &maze)
     MazeSolution solutionPath;
     // GameSystem *myGame = GameSystem::getInstance();
     solutionPath.setPath(bfsSolver.solveMaze(maze));
-    ;
+    solutionPath.setName(maze.getMazeName());
     if (solutionPath.getPath().empty())
     {
         return false;
@@ -352,7 +339,7 @@ Maze myMaze2dGenerator::generate(int size, string mazeName)
             newMaze.getCell(i, j)->setY(j);
         }
     }
-    int startX = 0; 
+    int startX = 0;
     int startY = 0;
 
     // Set the starting cell as a passage and add its walls to the frontier
@@ -398,6 +385,7 @@ Maze myMaze2dGenerator::generate(int size, string mazeName)
     MazeSolution solutionPathM;
 
     solutionPathM.setPath(solutionPath);
+    solutionPathM.setName(newMaze.getMazeName());
     myGame->getmySolutions()->saveSolution(newMaze.getMazeName(), solutionPathM);
     myGame->getmySolutions()->showSolution(newMaze.getMazeName());
 
@@ -434,3 +422,97 @@ Maze myMaze2dGenerator::generate(int size, string mazeName)
     myGame->getMyMazes()->saveMazeToRepository(newMaze);
     return newMaze;
 }
+
+bool MazeCompressor::writePathToFile(const MazeSolution &content)
+{
+    string fileName = "solution.txt"; // Change the file name as needed
+
+    ofstream file(fileName, ios::app);
+    if (!file.is_open())
+    {
+        cerr << "Error: Unable to open file." << std::endl;
+        return false;
+    }
+
+    // Write maze name
+    file << content.getMazeName() << ",";
+
+    // Write path vector
+    vector<Cell> path = content.getPath();
+    for (const Cell &cell : path)
+    {
+        file << "(" << cell.getX() << "," << cell.getY() << "),";
+    }
+    file << endl;
+
+    return true;
+}
+
+MazeSolution MazeCompressor::decompressPath(const std::string& mazeName)
+{
+    std::ifstream file("solution.txt");
+    if (!file.is_open())
+    {
+        throw std::runtime_error("Error: Unable to open file.");
+    }
+
+    std::string line;
+    bool foundSolution = false;
+    std::vector<Cell> path;
+
+    while (std::getline(file, line))
+    {
+        // Check if the line contains the mazeName
+        if (line.find(mazeName) != std::string::npos)
+        {
+            foundSolution = true;
+            std::istringstream iss(line);
+            std::string token;
+
+            // Skip the mazeName token
+            std::getline(iss, token, ',');
+            
+            // Process the remaining tokens as coordinates
+            while (std::getline(iss, token, '('))
+            {
+                if (!token.empty())
+                {
+                    // Extract the coordinates from the token
+                    int x, y;
+                    char comma;
+                    if (iss >> x >> comma >> y)
+                    {
+                        path.push_back(Cell(x, y, 1));
+                    }
+                    // Skip the comma and closing parenthesis
+                    iss >> comma;
+                }
+            }
+            
+        }
+    }
+
+    file.close();
+
+    if (!path.empty())
+    {
+        // Print the decompressed path for debugging
+        std::cout << "Decompressed path for maze " << mazeName << ":" << std::endl;
+        for (const Cell& cell : path)
+        {
+            std::cout << "(" << cell.getX() << "," << cell.getY() << ") ";
+        }
+        std::cout << std::endl;
+
+        // Create the MazeSolution with the decompressed path
+        MazeSolution decompressedSolution(mazeName);
+        decompressedSolution.setPath(path);
+
+        return decompressedSolution;
+    }
+    else
+    {
+        throw std::invalid_argument("Maze solution not found.");
+    }
+}
+

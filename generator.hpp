@@ -3,6 +3,7 @@
 #include <vector>
 #include <string>
 #include "maze.hpp"
+#include "mazeSolution.hpp"
 using namespace std; 
 
 
@@ -28,8 +29,10 @@ public:
 class MazeCompressor {
 public:
     vector<string> compress(const Maze& maze);
-    Maze decompress(int index);
+    Maze decompress(const string& fileName, int index);
+    MazeSolution decompressPath(const std::string& mazeName);
     bool writeStringToFile(const vector<string>& content);
+    bool writePathToFile(const MazeSolution& content);
     bool appendContentToFile(const vector<string>& content, int fileIndex);
 };
 

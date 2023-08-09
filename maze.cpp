@@ -49,24 +49,21 @@ Maze::Maze(const Maze &toCopy) : size(toCopy.size), mazeName(toCopy.mazeName)
 
 Maze::~Maze()
 {
-    // for (int i = 0; i < size; i++)
+    // if (mazeBoard)
     // {
-    //     delete[] mazeBoard[i];
+    //     for (int i = 0; i < size; i++)
+    //     {
+    //         delete[] mazeBoard[i];
+    //     }
+    //     delete[] mazeBoard;
     // }
-    // delete[] mazeBoard;
-    // if(startPoint){
-    //     delete startPoint;
-    // }
-
-    // cout<<"asd";
-
 }
 
 void Maze::display()
 {
     for (size_t i = 0; i < (size * 2) + 2; i++)
     {
-        cout << "-";
+        cout << "_";
     }
     cout << endl;
     for (int i = 0; i < size; i++)
@@ -102,31 +99,38 @@ void Maze::display()
     cout << endl;
 }
 
-void Maze::setCell(int x, int y, int cellValue) {
-    if (x < 0 || x >= size || y < 0 || y >= size) {
+void Maze::setCell(int x, int y, int cellValue)
+{
+    if (x < 0 || x >= size || y < 0 || y >= size)
+    {
         throw std::out_of_range("Invalid cell coordinates: Out of range.");
     }
     mazeBoard[x][y].setType(cellValue);
 }
 
-vector<Cell*> Maze::getNeighbors  (const Maze &maze, Cell *cell)const {
-    std::vector<Cell*> neighbors;
+vector<Cell *> Maze::getNeighbors(const Maze &maze, Cell *cell) const
+{
+    std::vector<Cell *> neighbors;
     int x = cell->getX();
     int y = cell->getY();
 
-    if (x > 0 && maze.getCell(x - 1, y)->getType() == 1) {
+    if (x > 0 && maze.getCell(x - 1, y)->getType() == 1)
+    {
         neighbors.push_back(maze.getCell(x - 1, y));
     }
 
-    if (x < maze.getSize() - 1 && maze.getCell(x + 1, y)->getType() == 1) {
+    if (x < maze.getSize() - 1 && maze.getCell(x + 1, y)->getType() == 1)
+    {
         neighbors.push_back(maze.getCell(x + 1, y));
     }
 
-    if (y > 0 && maze.getCell(x, y - 1)->getType() == 1) {
+    if (y > 0 && maze.getCell(x, y - 1)->getType() == 1)
+    {
         neighbors.push_back(maze.getCell(x, y - 1));
     }
 
-    if (y < maze.getSize() - 1 && maze.getCell(x, y + 1)->getType() == 1) {
+    if (y < maze.getSize() - 1 && maze.getCell(x, y + 1)->getType() == 1)
+    {
         neighbors.push_back(maze.getCell(x, y + 1));
     }
 

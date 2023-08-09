@@ -4,17 +4,20 @@
 #include <filesystem>
 using namespace std;
 namespace fs = std::filesystem;
-
+std::chrono::high_resolution_clock::time_point startTimeS;
+std::chrono::high_resolution_clock::time_point endTimeS;
 
 GameSystem *GameSystem::game_instance = nullptr;
 
-GameSystem::~GameSystem() {}
+GameSystem::~GameSystem(){
+}
+
 GameSystem::GameSystem()
 {
     mySolutions = SolutionRepository::getInstance();
     myMazes = MazeRepository::getInstance();
-    currentMaze = nullptr;
 }
+
 GameSystem *GameSystem::getInstance()
 {
     if (!game_instance)
@@ -28,6 +31,19 @@ void GameSystem::exit()
 {
     delete game_instance;
     game_instance = nullptr;
+}
+
+void startTimerS()
+{
+    startTimeS = std::chrono::high_resolution_clock::now();
+}
+
+// Function to stop measuring time and print the elapsed time
+void stopTimerS()
+{
+    endTimeS = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<float> elapsedTime = endTimeS - startTimeS;
+    std::cout << "Algorithm took " << elapsedTime.count() << " seconds." << std::endl;
 }
 
 void GameSystem::gameStart()
@@ -85,11 +101,12 @@ void GameSystem::saveMaze(Maze *maze)
     myMazes->saveMaze(maze);
 }
 
-void GameSystem::saveMazeExistF(Maze* maze){
+void GameSystem::saveMazeExistF(Maze *maze)
+{
     int whatFile;
-    cout<<"what file would you like to choose?"<<endl;
-    cin>>whatFile;
-    myMazes->saveMazeExist(maze,whatFile);
+    cout << "what file would you like to choose?" << endl;
+    cin >> whatFile;
+    myMazes->saveMazeExist(maze, whatFile);
 }
 
 Maze GameSystem::chooseMaze(const string &name)
@@ -120,9 +137,9 @@ void GameSystem::showMazes(int index)
     myMazes->showAllMazes(index);
 }
 
-Maze GameSystem::loadMyMaze(int index)
+Maze GameSystem::loadMyMaze(int index, string fileName)
 {
-    return myMazes->getMaze(index);
+    return myMazes->getMaze(index, fileName);
 }
 
 void GameSystem::listFilesInDirectory(const std::string &path)
@@ -177,41 +194,78 @@ void GameSystem::getFileSize(const string &path)
     }
 }
 
-
-void GameSystem::listTxtFilesInDirectory() {
+void GameSystem::listTxtFilesInDirectory()
+{
     cout << "Existing .txt files in the current directory:" << endl;
 
     vector<string> txtFiles;
 
     int index = 0;
-    for (const auto &entry : fs::directory_iterator(".")) {
-        if (entry.path().extension() == ".txt") {
-            txtFiles.push_back(entry.path().filename());
-            cout << index << ". " << entry.path().filename() << endl;
-            index++;
-        }
-    }
-}
-
-void GameSystem::listTxtFilesInDirectory(vector<string> &txtFiles)
-{
-    cout << "Existing .txt files in the current directory:" << endl;
-
-    txtFiles.clear();
-
-    int index = 1;
     for (const auto &entry : fs::directory_iterator("."))
     {
-        if (entry.path().extension() == ".txt")
+        if (entry.path().extension() == ".txt" && entry.path().filename() != "solution.txt")
         {
             txtFiles.push_back(entry.path().filename());
             cout << index << ". " << entry.path().filename() << endl;
             index++;
         }
     }
+    if (txtFiles.empty())
+    {
+        throw std::runtime_error("No .txt files found in the current directory.");
+    }
+}
+
+void GameSystem::listTxtFilesInDirectory(vector<string> &txtFiles)
+{
+    // cout << "Existing .txt files in the current directory:" << endl;
+
+    txtFiles.clear();
+
+    int index = 0;
+    for (const auto &entry : fs::directory_iterator("."))
+    {
+        if (entry.path().extension() == ".txt")
+        {
+            txtFiles.push_back(entry.path().filename());
+            // cout << index << ". " << entry.path().filename() << endl;
+            index++;
+        }
+    }
+    if (txtFiles.empty())
+    {
+        throw std::runtime_error("No .txt files found in the current directory.");
+    }
+}
+
+Maze GameSystem::loadMyMazeFromRepository(int index)
+{
+    return myMazes->getMazeFromList(index);
+}
+
+string GameSystem::getFileNameByIndex(int index)
+{
+    vector<string> txtFiles;
+    listTxtFilesInDirectory(txtFiles);
+
+    if (index >= 0 && index < txtFiles.size())
+    {
+        return txtFiles[index];
+    }
+    else
+    {
+        throw std::out_of_range("Invalid index.");
+    }
 }
 
 
-Maze GameSystem::loadMyMazeFromRepository(int index){
-    return myMazes->getMazeFromList(index);
+void GameSystem::compareAlgorithms(Algorithm* algorithm1, Algorithm* algorithm2){
+    algorithm1->getAlgorithmNameOS(cout)<<" runtime:"<<endl<<endl;
+    startTimerS();
+    algorithm1->solveMaze(*this->currentMaze);
+    stopTimerS();
+    algorithm2->getAlgorithmNameOS(cout)<<" runtime:"<<endl;
+    startTimerS();
+    algorithm2->solveMaze(*this->currentMaze);
+    stopTimerS();
 }

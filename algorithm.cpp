@@ -27,7 +27,7 @@ struct compare {
 
 // Algorithm::Algorithm() :algorithmName(nullptr) {}
 
-Algorithm *AlgorithmList::getAlgorithm(const std::string &name)
+Algorithm *AlgorithmList::getAlgorithm(const string &name)
 {
     for (Algorithm *algorithm : algorithms)
     {
@@ -37,15 +37,12 @@ Algorithm *AlgorithmList::getAlgorithm(const std::string &name)
     return nullptr;
 }
 
-void AlgorithmList::changeAlgorithm(const std::string &name)
-{
-    currentAlgorithm = getAlgorithm(name);
-}
+
 
 vector<Cell> AStar::solveMaze(const Maze &maze)
 {
-    std::priority_queue<Node *, std::vector<Node *>, CompareNode> openList;
-    std::map<Cell *, Node *> allNodes;
+    priority_queue<Node *, vector<Node *>, CompareNode> openList;
+    map<Cell *, Node *> allNodes;
 
     Node *startNode = new Node(maze.getCell(0, 0), nullptr, 0, heuristic(*(maze.getCell(0, 0)), *(maze.getCell(maze.getSize() - 1, maze.getSize() - 1))));
     openList.push(startNode);

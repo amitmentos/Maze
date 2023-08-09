@@ -3,6 +3,15 @@
 #include <algorithm>
 
 MazeSolution::MazeSolution() {}
+
+MazeSolution& MazeSolution::operator=(const MazeSolution& other) {
+    if (this != &other) {
+        name = other.name;
+        path = other.path;
+    }
+    return *this;
+}
+
 // MazeSolution::MazeSolution(const Maze &m, Algorithm *alg) : maze(m), algorithms(alg) {}
 void MazeSolution::display()
 {
@@ -12,7 +21,7 @@ void MazeSolution::display()
     }
     cout << endl;
 
-    for (int i = 0; i < (this->getPath()[0,0].getX())*2 + 2; i++)
+    for (int i = 0; i < (this->getPath()[0,0].getX())*2 + 3; i++)
     {
         cout << "-";
     }
@@ -47,9 +56,10 @@ void MazeSolution::display()
         cout << "|" << endl;
     }
 
-    for (int i = 0; i < (this->getPath()[0,0].getX())*2 + 2; i++)
+    for (int i = 0; i < (this->getPath()[0,0].getX())*2 + 3; i++)
     {
         cout << "-";
     }
     cout << endl;
 }
+

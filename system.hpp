@@ -8,6 +8,7 @@ using namespace std;
 #include "solutionRepository.hpp"
 #include "mazeRepository.hpp"
 #include "maze.hpp"
+#include "algorithm.hpp"
 
 enum Status {
     MENU,
@@ -48,7 +49,7 @@ public:
     virtual void gameReset();
     void exit();
     void setCurrentMaze(Maze* toSet){currentMaze=toSet;};
-    Maze loadMyMaze(int index);
+    Maze loadMyMaze(int index, string fileName);
     Maze loadMyMazeFromRepository(int index);
     Maze* getCurrentMaze(){return currentMaze;}
     SolutionRepository* getmySolutions(){return mySolutions;}
@@ -59,6 +60,8 @@ public:
     void getFileSize(const string& path);
     void saveMazeExistF(Maze* maze);
     void showMyMazes(){myMazes->showMazeList();}
+    string getFileNameByIndex(int index);
+    void compareAlgorithms(Algorithm* algorithm1, Algorithm* algoritm2);
 };
 
 

@@ -14,6 +14,11 @@ MazeRepository *MazeRepository::maze_instance = nullptr;
 
 MazeRepository::MazeRepository() {}
 
+bool isFileEmpty(const std::string& fileName) {
+    std::ifstream file(fileName);
+    return file.peek() == std::ifstream::traits_type::eof();
+}
+
 MazeRepository *MazeRepository::getInstance()
 {
     if (!maze_instance)
@@ -81,8 +86,11 @@ bool MazeRepository::showAllMazes(int fileIndex)
     vector<string> txtFiles;
     GameSystem *myGame = GameSystem::getInstance();
     myGame->listTxtFilesInDirectory(txtFiles);
-
-    if (fileIndex >= 0 && fileIndex < txtFiles.size()) {
+    if (isFileEmpty(txtFiles[fileIndex]))
+    {
+        throw std::runtime_error("Invaild value.");
+    }
+    if (fileIndex >= 0 && fileIndex < txtFiles.size() && txtFiles[fileIndex] != "solution.txt") {
         string chosenFile = txtFiles[fileIndex];
         ifstream file(chosenFile);
         if (!file.is_open()) {
@@ -113,10 +121,17 @@ bool MazeRepository::showAllMazes(int fileIndex)
     }
 }
 
-Maze MazeRepository::getMaze(int index)
+Maze MazeRepository::getMaze(int index, string fileName)
 {
+    
     MazeCompressor compressor;
-    return compressor.decompress(index);
+    GameSystem *myGame = GameSystem::getInstance();
+    MazeSolution mySolution;
+    Maze myMaze = compressor.decompress(fileName,index);
+    mySolution = compressor.decompressPath(myMaze.getMazeName());
+
+    myGame->getmySolutions()->saveSolution(mySolution.getMazeName(),mySolution);
+    return myMaze;
 }
 
 void MazeRepository::saveMazeToRepository(Maze toAdd) {
@@ -136,6 +151,7 @@ void MazeRepository::showMazeList()
     if (mazeList.empty())
     {
         cout << "No mazes in the repository." << endl;
+        throw std::runtime_error("no mazes");
         return;
     }
 

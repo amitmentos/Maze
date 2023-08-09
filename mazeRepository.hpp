@@ -16,7 +16,7 @@ public:
     ~MazeRepository();
     void saveMaze(Maze* toAdd);
     Maze getMaze(const string& name);
-    Maze getMaze(int index);
+    Maze getMaze(int index, string fileName);
     Maze getMazeFromList(int index){return mazeList[index];}
     void showMaze(const string& name);
     bool showAllMazes(int index);

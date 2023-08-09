@@ -1,63 +1,3 @@
-// #pragma once
-// #include <vector>
-// #include <string>
-// #include "cell.hpp"
-// #include "mazeSolution.hpp"
-// using namespace std;
-
-// namespace std {
-//     template <>
-//     struct hash<Point> {
-//         size_t operator()(const Point& p) const {
-//             // Use a simple hash combining the x and y values
-//             size_t h1 = std::hash<int>{}(p.getX());
-//             size_t h2 = std::hash<int>{}(p.getY());
-//             return h1 ^ (h2 << 1);
-//         }
-//     };
-// }
-
-
-// class Algorithm: public MazeSolution {
-//     protected:
-//         string algorithmName;
-//     public:
-//         string getAlgorithmName(){return algorithmName;};
-//         virtual vector<Cell> solveMaze(const Maze& maze) = 0;
-// };
-
-// class AlgorithmList {
-// protected:
-//     vector<Algorithm*> algorithms;
-//     Algorithm* currentAlgorithm;
-
-// public:
-//     AlgorithmList():currentAlgorithm(nullptr){};
-//     void addAlgorithm(Algorithm* newAlgorithm){algorithms.push_back(newAlgorithm);};
-//     void changeAlgorithm(const string& name);
-//     Algorithm* getAlgorithm(const string& name);
-// };
-
-// class DFS : public Algorithm {
-// public:
-//     vector<Cell> solveMaze(const Maze& maze) override;
-// };
-
-
-// class BFS : public Algorithm {
-// public:
-//     vector<Cell> solveMaze(const Maze& maze) override;
-
-// private:
-//     struct Node {
-//         Cell cell;
-//         vector<Cell> path;
-
-//         Node(const Cell& c, const vector<Cell>& p) : cell(c), path(p) {}
-//     };
-// };
-
-
 #pragma once
 #include <vector>
 #include <string>
@@ -87,38 +27,29 @@ class Algorithm: public MazeSolution {
     public:
         string getAlgorithmName(){return algorithmName;};
         virtual vector<Cell> solveMaze(const Maze& maze) = 0;
+        virtual ostream& getAlgorithmNameOS(ostream &os) = 0;
 };
 
 class AlgorithmList {
 protected:
     vector<Algorithm*> algorithms;
-    Algorithm* currentAlgorithm;
 
 public:
-    AlgorithmList():currentAlgorithm(nullptr){};
+    AlgorithmList(){};
     void addAlgorithm(Algorithm* newAlgorithm){algorithms.push_back(newAlgorithm);};
-    void changeAlgorithm(const string& name);
-    Algorithm* getAlgorithm(const string& name);
+    Algorithm* getAlgorithm(const int index){return algorithms[index];}
+    Algorithm* getAlgorithm(const string &name);
 };
 
-// class prim : public Algorithm {
-// public: 
-//     vector<Cell> solveMaze(const Maze& maze) override;
-// };
-
-// class AStar : public Algorithm {
-// public:
-//     vector<Cell> solveMaze(const Maze& maze) override;
-// };
 
 class AStar : public Algorithm {
 private:
     struct Node {
         Cell *cell;
         Node *parent;
-        float g; // cost from start to this node
-        float h; // heuristic cost from this node to goal
-        float f; // total cost
+        float g; 
+        float h;
+        float f; 
 
         Node(Cell *cell, Node *parent, float g, float h) : cell(cell), parent(parent), g(g), h(h), f(g+h) {}
     };
@@ -134,18 +65,23 @@ private:
     }
 
 public:
-    std::vector<Cell> solveMaze(const Maze &maze);
+    vector<Cell> solveMaze(const Maze &maze);
+    ostream& getAlgorithmNameOS(ostream &os) override {return os << "A*";}
 };
+
+
 
 class DFS : public Algorithm {
 public:
     vector<Cell> solveMaze(const Maze& maze) override;
+    ostream& getAlgorithmNameOS(ostream &os) override {return os << "DFS";}
 };
 
 
 class BFS : public Algorithm {
 public:
     vector<Cell> solveMaze(const Maze& maze) override;
+    ostream& getAlgorithmNameOS(ostream &os) override {return os << "BFS";}
 
 private:
     struct Node {
@@ -159,4 +95,5 @@ private:
 class Prim: public Algorithm {
 public:
     vector<Cell> solveMaze(const Maze& maze) override;
+    ostream& getAlgorithmNameOS(ostream &os) override {return os << "Prim";}
 };

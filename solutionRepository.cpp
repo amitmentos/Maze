@@ -1,4 +1,5 @@
 #include "solutionRepository.hpp"
+#include "generator.hpp"
 #include <string.h>
 #include <iostream>
 using namespace std;
@@ -43,5 +44,15 @@ void SolutionRepository::showSolution(const string& name) {
         it->second.display(); // Assuming there's a showDetails() function in mazeSolution
     } else {
         cout << "Solution for maze '" << name << "' not found." << endl;
+    }
+}
+
+bool SolutionRepository::savePathFile(const MazeSolution& toAdd) {
+    try {
+        MazeCompressor myCompressor;
+        return myCompressor.writePathToFile(toAdd);
+    } catch (const std::exception& ex) {
+        std::cerr << "Error saving solution to file: " << ex.what() << std::endl;
+        return false;
     }
 }

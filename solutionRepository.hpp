@@ -18,4 +18,5 @@ public:
     bool saveSolution(const string& mazeName, MazeSolution toAdd);
     MazeSolution* getSolution(const string& name);
     void showSolution(const string& name);
+    bool savePathFile(const MazeSolution& toAdd);
 };
