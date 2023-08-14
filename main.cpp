@@ -10,6 +10,13 @@ using namespace std;
 // Amit Ronen Id: 205733975
 // Ben Gurevich Id: 206904880
 //**********************************************************************************
+//!!Workspace!!
+//     Macbook pro- macOS 13.5
+//     g++:
+//      (Homebrew GCC 12.2.0) 12.2.0
+//     clang:
+//      Apple clang version 14.0.3 (clang-1403.0.22.14.1)
+
 extern GameSystem *myGame;
 int main()
 {
@@ -18,6 +25,7 @@ int main()
     int flagNew = 0;
     int flagPlay = 1;
     int flagBack = 1;
+    int flagErrorL = 1;
     int whatMaze, whereToSave, whereToLoadFrom, WhatAlgorithm, compare1, compare2;
     GameSystem *myGame = GameSystem::getInstance();
     int whatSize, whatFile;
@@ -57,7 +65,7 @@ int main()
             cout << "What would you like to do?" << endl; // first menu
             cout << "0- EXIT                        1-  Create Maze" << endl;
             cout << "2- Load Maze                   3-  List files" << endl;
-            cout << "4- Get file size               5- List maze I created" << endl;
+            cout << "4- Get file size               5-  List maze I created" << endl;
             cin >> select;
         } while (select < 0 || select > 5);
         loadedSuccessfully = false;
@@ -88,6 +96,7 @@ int main()
             }
             else
             {
+                if(WhatAlgorithm!= 1){cout<<"invaild input! it created the maze with defult algorithm- Prim"<<endl;}
                 Maze *newMaze = new Maze(newPrimgenerator.generate(whatSize, mazeName));
                 myGame->setCurrentMaze(newMaze);
             }
@@ -118,6 +127,7 @@ int main()
                                 cout << "What maze would you like to load?" << endl;
                                 cin >> whatMaze;
                                 loadFileSucc2 = true;
+                                flagErrorL = 1;
                             }
                             catch (const std::exception &ex)
                             {
@@ -138,21 +148,27 @@ int main()
                                 cin >> whatMaze;
                                 Maze loadedMaze2 = myGame->loadMyMazeFromRepository(whatMaze);
                                 myGame->setCurrentMaze(&loadedMaze2);
-                                loadFileSucc = true;
+                                loadFileSucc2 = true;
+                                flagErrorL = 1;
                             }
                             catch (const std::exception &ex)
                             {
                                 cout << "An exception occurred: " << ex.what() << endl;
+                                loadFileSucc2 = true;
+                                flagErrorL = 0;
+                                
                             }
                         } while (!loadFileSucc2);
                     }
                     if (whereToLoadFrom == 2)
                         break;
                     // No exceptions were thrown, so set e to false to exit the loop
+                    if(flagErrorL){
                     loadedSuccessfully = true;
                     flag = 1;
                     flagNew = 0;
                     flagBack = 1;
+                    }
                 }
                 catch (const std::exception &ex)
                 {
@@ -164,7 +180,7 @@ int main()
         }
         case 3:
             int whatPath;
-            cout << "Where do you want to list files from? (0- Current Path 1- Other)" << endl;
+            cout << "Where do you want to list files from? (0- Current Path | 1- Other)" << endl;
             cin >> whatPath;
             if (whatPath == 0)
             {
@@ -183,13 +199,15 @@ int main()
                 catch (const std::filesystem::filesystem_error &e)
                 {
                     cout << e.what() << endl;
+                    cin.ignore();
                 }
             }
+            if(whatPath!=0 && whatPath!= 1){cout<<"Invaild input!"<<endl;}
             break;
 
         case 4:
             int whatPathSize;
-            cout << "Where do you want to get size of the file from? (0- Current Path 1- Other)" << endl;
+            cout << "Where do you want to get size of the file from? (0- Current Path | 1- Other)" << endl;
             cin >> whatPathSize;
             if (whatPathSize == 0)
             {
@@ -210,8 +228,19 @@ int main()
                     cout << e.what() << endl;
                 }
             }
+            if(whatPath!=0 && whatPath!= 1){cout<<"Invaild input!"<<endl;}
+            break;
+
         case 5:
-            myGame->showMyMazes();
+            try
+            {
+                myGame->showMyMazes();
+                break;
+            }
+            catch (const exception &ex)
+            {
+                cout << "An exception occurred: " << ex.what() << endl;
+            }
             break;
 
         default:
@@ -229,11 +258,11 @@ int main()
                     cout << "0- Back                   1-  Save Maze" << endl;
                     cout << "2- Play Maze              3-  Show Maze" << endl;
                     cout << "4- Show solution          5-  Change Maze" << endl;
-                    cout << "6- Test algorithms          " << endl;
+                    cout << "6- Test algorithms        7-  Get maze data" << endl;
                     cin >> select;
                     loadedSuccessfully = false;
                     loadFileSucc = false;
-                } while (select < 0 || select > 6);
+                } while (select < 0 || select > 7);
                 switch (select)
                 {
                 case 0:
@@ -243,7 +272,7 @@ int main()
                 case 1:
                     if (flagNew)
                     {
-                        cout << "What do you want to save the maze to?(0- Choose TXT file | 1- create new file)" << endl;
+                        cout << "Where do you want to save the maze to?(0- Choose TXT file | 1- create new file)" << endl;
                         cin >> whereToSave;
                         if (whereToSave)
                         {
@@ -352,6 +381,10 @@ int main()
                     cout << "Please choose the second algorith: (0- BFS | 1- A* | 2- Prim)" << endl;
                     cin >> compare2;
                     myGame->compareAlgorithms(algorithmList.getAlgorithm(compare1), algorithmList.getAlgorithm(compare2));
+                    break;
+
+                case 7:
+                    myGame->getCurrentMazeData();
                     break;
 
                 default:

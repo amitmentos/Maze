@@ -490,7 +490,6 @@ MazeSolution MazeCompressor::decompressPath(const std::string& mazeName)
 
     if (!path.empty())
     {
-
         // Create the MazeSolution with the decompressed path
         MazeSolution decompressedSolution(mazeName);
         decompressedSolution.setPath(path);

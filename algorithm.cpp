@@ -207,7 +207,6 @@ vector<Cell> BFS::solveMaze(const Maze &maze)
         }
     }
 
-    // If we've exhausted all possibilities and haven't returned yet, there's no solution
     return vector<Cell>();
 }
 
@@ -219,7 +218,7 @@ vector<Cell> Prim::solveMaze(const Maze &maze)
 
     // Start from the cell at position (0,0)
     pq.push(make_pair(0, make_pair(0, 0)));
-    parent[0][0] = make_pair(-1, -1); // mark the starting cell's parent as (-1, -1)
+    parent[0][0] = make_pair(-1, -1); 
 
     while (!pq.empty())
     {

@@ -155,7 +155,7 @@ void MazeRepository::showMazeList()
     if (mazeList.empty())
     {
         cout << "No mazes in the repository." << endl;
-        throw std::runtime_error("no mazes");
+        throw runtime_error("no mazes");
         return;
     }
 
@@ -174,4 +174,26 @@ Maze MazeRepository::getMazeFromList(int index)
         throw std::out_of_range("Invalid index for maze.");
     }
     return mazeList[index];
+}
+
+
+string MazeRepository::getMazeData(const string& name)
+{
+    for (const Maze& maze : mazeList)
+    {
+        if (maze.getMazeName() == name)
+        {
+            stringstream mazeData;
+            cout<<"The array data is:"<<endl;
+            mazeData << "Maze Name: " << maze.getMazeName() << endl;
+            mazeData << "Entrance: (" << maze.getStartPoint()->getX() << ", " << maze.getStartPoint()->getY() << ")" << endl;
+            mazeData << "Exit: (" << maze.getEndPoint()->getX() << ", " << maze.getEndPoint()->getY() << ")" << endl;
+            mazeData << "Dimensions: " << maze.getSize() << "x" << maze.getSize() << endl;
+            cout<<"size of: "<<sizeof(maze)<<endl;
+            cout << mazeData.str() << endl;
+            return mazeData.str();
+        }
+    }
+    
+    return "Maze not found.";
 }

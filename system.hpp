@@ -61,6 +61,8 @@ public:
     void showMyMazes(){myMazes->showMazeList();}
     string getFileNameByIndex(int index);
     void compareAlgorithms(Algorithm* algorithm1, Algorithm* algoritm2);
+    string getCurrentMazeData(){ return this->myMazes->getMazeData(currentMaze->getMazeName());}
+
 };
 
 

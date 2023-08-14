@@ -49,14 +49,6 @@ Maze::Maze(const Maze &toCopy) : size(toCopy.size), mazeName(toCopy.mazeName)
 
 Maze::~Maze()
 {
-    // if (mazeBoard)
-    // {
-    //     for (int i = 0; i < size; i++)
-    //     {
-    //         delete[] mazeBoard[i];
-    //     }
-    //     delete[] mazeBoard;
-    // }
 }
 
 void Maze::display()

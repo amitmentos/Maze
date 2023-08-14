@@ -23,5 +23,6 @@ public:
     vector<Maze> getMazeList(){return mazeList;}
     void saveMazeExist(Maze *toAdd, int index);
     void saveMazeToRepository(Maze toAdd);
+    string getMazeData(const string& name);
     void showMazeList();
 };

@@ -1,4 +1,5 @@
 #include "system.hpp"
+#include "generator.hpp"
 #include <string.h>
 #include <iostream>
 #include <filesystem>
@@ -10,7 +11,6 @@ std::chrono::high_resolution_clock::time_point endTimeS;
 GameSystem *GameSystem::game_instance = nullptr;
 
 GameSystem::~GameSystem(){
-    // if(currentMaze) delete currentMaze; 
     if(mySolutions)  delete mySolutions; 
     if(myMazes) delete myMazes; 
 }
@@ -270,3 +270,4 @@ void GameSystem::compareAlgorithms(Algorithm* algorithm1, Algorithm* algorithm2)
     algorithm2->solveMaze(*this->currentMaze);
     stopTimerS();
 }
+
